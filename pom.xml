@@ -206,4 +206,20 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.scala-lang</groupId>
+				<artifactId>scala-library</artifactId>
+				<version>${scala.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.typelevel</groupId>
+			<artifactId>cats-core${scala.suffix}</artifactId>
+			<version>0.8.1</version>
+		</dependency>
+	</dependencies>
 </project>
