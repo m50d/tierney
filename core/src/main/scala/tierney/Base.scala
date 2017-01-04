@@ -1,5 +1,4 @@
 package tierney
 
-trait Base {
-  
-}
+//To be introduced post scala 2.12
+//trait Base

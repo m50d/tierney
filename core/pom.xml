@@ -14,5 +14,16 @@
 			<artifactId>cats-core${scala.suffix}</artifactId>
 			<version>0.8.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.milessabin</groupId>
+			<artifactId>kittens_2.11</artifactId>
+			<version>1.0.0-M1</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
