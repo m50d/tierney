@@ -1,5 +1,0 @@
-package tierney
-
-trait Base {
-  
-}

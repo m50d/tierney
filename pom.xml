@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.m50d</groupId>
-	<artifactId>tierney</artifactId>
+	<artifactId>tierney-aggregator</artifactId>
 	<version>0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scala.version>2.11.8</scala.version>
@@ -213,13 +213,14 @@
 				<artifactId>scala-library</artifactId>
 				<version>${scala.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>macro-compat${scala.suffix}</artifactId>
+				<version>1.1.1</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<dependencies>
-		<dependency>
-			<groupId>org.typelevel</groupId>
-			<artifactId>cats-core${scala.suffix}</artifactId>
-			<version>0.8.1</version>
-		</dependency>
-	</dependencies>
+	<modules>
+		<module>core</module>
+	</modules>
 </project>
