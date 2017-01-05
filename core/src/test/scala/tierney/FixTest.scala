@@ -13,8 +13,8 @@ case class ConsF[A](head: Int, tail: A) extends IntListF[A]
 
 class FixTest {
   type IntList = Fix[IntListF]
-  val nil: IntList = Fix(NilF[IntList]())
-  def cons(head: Int, tail: IntList): IntList = Fix(ConsF(head, tail))
+  val nil: IntList = NilF[IntList]()
+  def cons(head: Int, tail: IntList): IntList = ConsF(head, tail)
   val exampleList = cons(2, cons(1, nil))
   
   @Test def cata(): Unit = {
