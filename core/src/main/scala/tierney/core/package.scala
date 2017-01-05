@@ -16,7 +16,10 @@ package object core {
         override def apply[A](fa: Fix1[F, A]) = fa.unfix
       }
     def cata1[F[_[_], _], G[_]](f: Partial1[F, G]#O ~> G)(implicit functor: Functor1[F]): Partial2[Fix1, F]#O ~> G =
-      unfix1[F] andThen[Partial1[F, G]#O] functor.map[Partial2[Fix1, F]#O, G](cata1(f)) andThen f
+      unfix1[F] andThen[Partial1[F, G]#O] functor.map[Partial2[Fix1, F]#O, G](new Lazy[Partial2[Fix1, F]#O, G](cata1(f))) andThen f
   }
-  final implicit class Fix1[F[_[_], _], A](val unfix: F[Partial2[Fix1, F]#O, A])
+  
+  final implicit class Fix1[F[_[_], _], A](val unfix: F[Partial2[Fix1, F]#O, A]) {
+    def cata[G[_]](f: Partial1[F, G]#O ~> G)(implicit functor: Functor1[F]): G[A] = Fix1.cata1(f).apply(this) 
+  }
 }
