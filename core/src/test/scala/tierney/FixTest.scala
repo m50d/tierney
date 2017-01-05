@@ -22,6 +22,6 @@ class FixTest {
       case NilF() => ""
       case ConsF(i, s) => i + ", " + s
     }
-    assertEquals("2, 1", printed)
+    assertEquals("2, 1, ", printed)
   }
 }

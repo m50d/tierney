@@ -15,9 +15,9 @@
 			<version>0.8.1</version>
 		</dependency>
 		<dependency>
-			<groupId>com.milessabin</groupId>
-			<artifactId>kittens_2.11</artifactId>
-			<version>1.0.0-M1</version>
+			<groupId>org.typelevel</groupId>
+			<artifactId>kittens${scala.suffix}</artifactId>
+			<version>1.0.0-M7</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
