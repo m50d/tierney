@@ -1,4 +1,4 @@
-package tierney
+package tierney.core
 
 import cats.derived._
 import cats.derived.functor._
