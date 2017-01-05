@@ -11,7 +11,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.github.m50d</groupId>
-			<artifactId>tierney-aggregator</artifactId>
+			<artifactId>tierney-core</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
