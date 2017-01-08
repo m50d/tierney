@@ -11,10 +11,7 @@ package object core {
   }
 
   object Fix1 {
-    def unfix1[F[_[_], _]]: Fix1[F, ?] ~> F[Fix1[F, ?], ?] =
-      new (Fix1[F, ?] ~> F[Fix1[F, ?], ?]) {
-        override def apply[A](fa: Fix1[F, A]) = fa.unfix
-      }
+    private[this] def unfix1[F[_[_], _]] = Lambda[Fix1[F, ?] ~> F[Fix1[F, ?], ?]](_.unfix)
     def cata1[F[_[_], _], G[_]](f: F[G, ?] ~> G)(implicit functor: Functor1[F]): Fix1[F, ?] ~> G =
       unfix1[F] andThen[F[G, ?]] functor.map[Fix1[F, ?], G](new Lazy[Fix1[F, ?], G](cata1(f))) andThen f
   }
