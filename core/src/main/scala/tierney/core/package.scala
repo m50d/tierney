@@ -10,13 +10,13 @@ package object core {
       f(unfix map { _.cata(f) })
   }
 
-  object Fix1 {
-    private[this] def unfix1[F[_[_], _]] = Lambda[Fix1[F, ?] ~> F[Fix1[F, ?], ?]](_.unfix)
-    def cata1[F[_[_], _], G[_]](f: F[G, ?] ~> G)(implicit functor: Functor1[F]): Fix1[F, ?] ~> G =
-      unfix1[F] andThen[F[G, ?]] functor.map[Fix1[F, ?], G](new Lazy[Fix1[F, ?], G](cata1(f))) andThen f
+  object FixK {
+    private[this] def unfixK[F[_[_], _]] = Lambda[FixK[F, ?] ~> F[FixK[F, ?], ?]](_.unfix)
+    def cataK[F[_[_], _], G[_]](f: F[G, ?] ~> G)(implicit functor: FunctorK[F]): FixK[F, ?] ~> G =
+      unfixK[F] andThen[F[G, ?]] functor.map[FixK[F, ?], G](new Lazy[FixK[F, ?], G](cataK(f))) andThen f
   }
   
-  final implicit class Fix1[F[_[_], _], A](val unfix: F[Fix1[F, ?], A]) {
-    def cata[G[_]](f: F[G, ?] ~> G)(implicit functor: Functor1[F]): G[A] = Fix1.cata1(f).apply(this) 
+  final implicit class FixK[F[_[_], _], A](val unfix: F[FixK[F, ?], A]) {
+    def cata[G[_]](f: F[G, ?] ~> G)(implicit functor: FunctorK[F]): G[A] = FixK.cataK(f).apply(this) 
   }
 }

@@ -22,6 +22,6 @@ class FixTest {
       case IntNilF() => ""
       case IntConsF(i, s) => i + ", " + s
     }
-    assertEquals("2, 1, ", printed)
+    assertEquals("2, K, ", printed)
   }
 }

@@ -8,7 +8,7 @@ sealed trait ListF[G[_], A]
 case class NilF[G[_], A]() extends ListF[G, A]
 case class ConsF[G[_], A](head: A, tail: G[A]) extends ListF[G, A]
 object ListF {
-  implicit object ListFFunctor1 extends Functor1[ListF] {
+  implicit object ListFFunctorK extends FunctorK[ListF] {
     def map[G[_], H[_]](f: G ~> H): ListF[G, ?] ~> ListF[H, ?] =
       Lambda[ListF[G, ?] ~> ListF[H, ?]](_ match {
           case NilF() => NilF()
@@ -17,8 +17,8 @@ object ListF {
     }
 }
 
-class Fix1Test {
-  type List_[A] = Fix1[ListF, A] 
+class FixKTest {
+  type List_[A] = FixK[ListF, A] 
   def nil[A]: List_[A] = NilF[List_, A]()
   def cons[A](head: A, tail: List_[A]): List_[A] = ConsF(head, tail)
   val exampleList = cons(2, cons(1, nil))
