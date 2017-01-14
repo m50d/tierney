@@ -20,6 +20,7 @@
 							<excludes>
 								<exclude>tierney/core/FunctorK.scala</exclude>
 								<exclude>tierney/core/package.scala</exclude>
+<exclude>tierney/core/FunctionKK.scala</exclude><exclude>tierney/core/FunctorKK.scala</exclude>
 							</excludes>
 						</configuration>
 					</execution>
