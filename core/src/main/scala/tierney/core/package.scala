@@ -5,6 +5,8 @@ import cats.~>
 import cats.syntax.functor._
 
 package object core {
+  type ~~>[S[_[_], _], T[_[_], _]] = FunctionKK[S, T]
+  
   final implicit class Fix[F[_]](unfix: F[Fix[F]]) {
     def cata[A](f: F[A] ⇒ A)(implicit functor: Functor[F]): A =
       f(unfix map { _.cata(f) })

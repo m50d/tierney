@@ -1,10 +1,11 @@
 package tierney.core
 
 import cats.~>
+import cats.Functor
 
 /**
  * Higher-kinded functor
  */
-trait FunctorK[F[_[_], _]] {
-  def map[G[_], H[_]](f: G ~> H): F[G, ?] ~> F[H, ?]
+trait FunctorK[S[_[_], _]] {
+  def map[F[_], G[_]](f: F ~> G): S[F, ?] ~> S[G, ?]
 }
