@@ -4,6 +4,8 @@ import cats.~>
 import cats.Functor
 import cats.free.Free
 import cats.free.FreeApplicative
+import cats.data.Coproduct
+import cats.arrow.FunctionK
 
 /**
  * Higher-kinded functor
@@ -23,5 +25,11 @@ object FunctorK {
        override def apply[A](fa: FreeApplicative[F, A]) =
          fa.foldMap[FreeApplicative[G, ?]](f andThen[FreeApplicative[G, ?]] Lambda[G ~> FreeApplicative[G, ?]](FreeApplicative.lift(_)))
      }
+  }
+  implicit def coproductFunctorK[F[_]]: FunctorK[Lambda[(G[_], A) => Coproduct[F, G, A]]] = new FunctorK[Lambda[(G[_], A) => Coproduct[F, G, A]]] {
+    override def map[G[_], H[_]](f: G ~> H): Coproduct[F, G, ?] ~> Coproduct[F, H, ?] =
+      new (Coproduct[F, G, ?] ~> Coproduct[F, H, ?]) {
+      override def apply[A](fa: Coproduct[F, G, A]) = fa.fold[Coproduct[F, H, ?]](Lambda[F ~> Coproduct[F, H, ?]](Coproduct.left(_)), f andThen[Coproduct[F, H, ?]] Lambda[H ~> Coproduct[F, H, ?]](Coproduct.right(_)))
+    }
   }
 }
