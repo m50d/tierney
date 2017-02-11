@@ -122,6 +122,7 @@
 							<version>0.9.3</version>
 						</compilerPlugin>
 					</compilerPlugins>
+					<scalaOrganization>org.typelevel</scalaOrganization>
 				</configuration>
 			</plugin>
 
