@@ -6,6 +6,7 @@ import cats.free.Free
 import tierney.core.FunctorKK
 import cats.~>
 import tierney.core.~~>
+import tierney.core.`package`.FixKK
 
 package object free {
   // TODO: Really this should be strictly mutually recursive, with the monad only containing the applicative and vice versa.
@@ -33,4 +34,5 @@ package object free {
         }
     }
   }
+  type TierneyFree[F[_], A] = FixKK[TierneyFreeF, F, A]
 }
