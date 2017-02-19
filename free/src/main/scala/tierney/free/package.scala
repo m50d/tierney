@@ -6,8 +6,11 @@ import cats.free.Free
 import tierney.core.FunctorKK
 import cats.~>
 import tierney.core.~~>
+import tierney.core.`package`.FixKK
 
 package object free {
+  // TODO: Really this should be strictly mutually recursive, with the monad only containing the applicative and vice versa.
+  // But I want to get the fixed-point operator working first before doing anything more complicated.
   type TierneyFreeF[S[_[_], _], F[_], A] = Coproduct[Free[S[F, ?], ?], FreeApplicative[Coproduct[F, S[F, ?], ?], ?], A]
   object TierneyFreeF {
     implicit def functorKK: FunctorKK[TierneyFreeF] = new FunctorKK[TierneyFreeF] {
@@ -31,4 +34,5 @@ package object free {
         }
     }
   }
+  type TierneyFree[F[_], A] = FixKK[TierneyFreeF, F, A]
 }
