@@ -23,7 +23,12 @@ package object core {
   
   final implicit class FixKK[W[_[_[_], _], _[_], _], F[_], A](val unfix: W[Lambda[(G[_], B) => FixKK[W, G, B]], F, A]) {
     def cata[S[_[_], _]](f: Lambda[(F[_], A) => W[S, F, A]] ~~> S)(implicit functor: FunctorKK[W]): S[F, A] = FixKK.cataKK(f).apply(this)
+//    def cata_[S[_[_], _]](f: W[S, F, ?] ~> S[F, ?]) = FixKK.cataKK_(f).apply(this)
   }
+  def fixKK[W[_[_[_], _], _[_], _]]: Lambda[(F[_], A) => W[Lambda[(G[_], B) => FixKK[W, G, B]], F, A]] ~~> Lambda[(F[_], A) => FixKK[W, F, A]] =
+    new (Lambda[(F[_], A) => W[Lambda[(G[_], B) => FixKK[W, G, B]], F, A]] ~~> Lambda[(F[_], A) => FixKK[W, F, A]]) {
+      override def apply[F[_]] = Lambda[W[Lambda[(G[_], B) => FixKK[W, G, B]], F, ?] ~> FixKK[W, F, ?]](FixKK(_))
+    }
   object FixKK {
     private[this] def unfixKK[W[_[_[_], _], _[_], _]] =
       new (Lambda[(F[_], A) => FixKK[W, F, A]] ~~> Lambda[(F[_], A) => W[Lambda[(G[_], B) => FixKK[W, G, B]], F, A]]){
@@ -31,5 +36,7 @@ package object core {
     }
     def cataKK[W[_[_[_], _], _[_], _], S[_[_], _]](f:Lambda[(F[_], A) => W[S, F, A]] ~~> S)(implicit functor: FunctorKK[W]): Lambda[(F[_], A) => FixKK[W, F, A]] ~~> S =
       unfixKK[W] andThen[Lambda[(F[_], A) => W[S, F, A]]] functor.map[Lambda[(F[_], A) => FixKK[W, F, A]], S](new LazyFunctionKK[Lambda[(F[_], A) => FixKK[W, F, A]], S](cataKK(f))) andThen f
+//    def cataKK_[W[_[_[_], _], _[_], _], S[_[_], _], F[_]](f:W[S, F, ?] ~> S[F, ?])(implicit functor: FunctorKK[W]): FixKK[W, F, ?] ~> S[F, ?] =
+//      unfixKK[W].apply[F] andThen[W[S, F, ?]] functor.map[FixKK[W, F, ?], S[F, ?]](new LazyFunctionK[FixKK[W, F, ?], S[F, ?]](cataKK_(f)(functor))) andThen f
   }
 }
