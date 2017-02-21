@@ -9,5 +9,6 @@ trait FreeSupport {
   implicit val compileF__ : FunctorK[Free] = new FunctorK[Free] {
     override def map[F[_], G[_]](f: F ~> G) = compileF_(f)
   }
+  def liftF_[F[_]]: F ~> Free[F, ?] = Lambda[F ~> Free[F, ?]](Free.liftF(_))
 }
 object FreeSupport extends FreeSupport

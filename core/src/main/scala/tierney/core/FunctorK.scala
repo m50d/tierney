@@ -11,7 +11,13 @@ import cats.arrow.FunctionK
  * Higher-kinded functor
  */
 trait FunctorK[S[_[_], _]] {
+  self =>
   def map[F[_], G[_]](f: F ~> G): S[F, ?] ~> S[G, ?]
+  final def andThen[T[_[_], _]](other: FunctorK[T]): FunctorK[Lambda[(F[_], A) => T[S[F, ?], A]]] =
+    new FunctorK[Lambda[(F[_], A) => T[S[F, ?], A]]] {
+    override def map[F[_], G[_]](f: F ~> G): T[S[F, ?], ?] ~> T[S[G, ?], ?] =
+      other.map[S[F, ?], S[G, ?]](self.map(f))
+  }
 }
 object FunctorK {
   implicit def freeFunctorK: FunctorK[Free] = new FunctorK[Free] {
