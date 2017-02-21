@@ -2,7 +2,13 @@
 
 [![Build Status](https://travis-ci.org/m50d/tierney.svg?branch=master)](https://travis-ci.org/m50d/tierney)
 
-Recursion schemes for Scala
+A project exploring recursion-schemes style and higher-kinded constructs in Scala:
+
+ * Higher-kinded variants of some general constructs as necessary to support the rest of the project
+   (`core`, potentially to be replaced with use of polykinds from Typelevel Scala)
+ * Recursion-schemes style `Fix`/`FixK`/... constructs and traversal implementations
+   (currently also `core`, potentially to be spun out into a separate module if the above remains necessary)
+ * Implementation of a free hybrid monad-applicative structure, making use of the above (`free`) 
 
 ## Developing in Eclipse
 
