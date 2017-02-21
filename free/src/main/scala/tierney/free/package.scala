@@ -36,19 +36,13 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
    */
   type ParallelF[S[_[_], _], F[_], A] = ParallelFF[Lambda[(F[_], A) ⇒ SerialFF[S, F, A]], F, A]
   object ParallelF {
-    implicit val functorKKParallelF: FunctorKK[ParallelF] = new FunctorKK[ParallelF] {
-      override def map[S[_[_], _], T[_[_], _]](f: S ~~> T) =
-        ParallelFF.functorKKParallelFF.map[Lambda[(F[_], A) ⇒ SerialFF[S, F, A]], Lambda[(F[_], A) ⇒ SerialFF[T, F, A]]](SerialFF.functorKKSerialFF.map(f))
-    }
+    implicit val functorKKParallelF: FunctorKK[ParallelF] = SerialFF.functorKKSerialFF andThen ParallelFF.functorKKParallelFF
   }
   /** A chain of fans of F commands and S constructs to execute serially
    */
   type SerialF[S[_[_], _], F[_], A] = SerialFF[Lambda[(F[_], A) ⇒ ParallelFF[S, F, A]], F, A]
   object SerialF {
-    implicit val functorKKSerialF: FunctorKK[SerialF] = new FunctorKK[SerialF] {
-      override def map[S[_[_], _], T[_[_], _]](f: S ~~> T) =
-        SerialFF.functorKKSerialFF.map[Lambda[(F[_], A) ⇒ ParallelFF[S, F, A]], Lambda[(F[_], A) ⇒ ParallelFF[T, F, A]]](ParallelFF.functorKKParallelFF.map(f))
-    }
+    implicit val functorKKSerialF: FunctorKK[SerialF] = ParallelFF.functorKKParallelFF andThen SerialFF.functorKKSerialFF 
   }
   /** A fan of chains of parallel and serial F commands
    */
