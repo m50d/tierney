@@ -62,17 +62,30 @@ package object free {
   type Parallel[F[_], A] = FixKK[ParallelF, F, A]
   def Parallel[F[_], A](command: F[A]): Parallel[F, A] = 
     FixKK[ParallelF, F, A](FreeApplicative.lift[Coproduct[F, SerialFF[Parallel, F, ?], ?], A](Coproduct.leftc[F, SerialFF[Parallel, F, ?], A](command)))
-//  implicit class ParallelOps[F[_], A](val value: Parallel[F, A]) extends AnyVal {
-//    def serial: Serial[F, A] = value.cata[Serial](new (Lambda[(F[_], A) ⇒ ParallelF[Serial, F, A]] ~~> Serial){
-//      override def apply[F[_]] = new (ParallelF[Serial, F, ?] ~> Serial[F, ?]) {
-//        override def apply[A](fa: ParallelF[Serial, F, A]) =
-//          FixKK[SerialF, F, A](Free.liftF[ParallelFF[Lambda[(F[_], A) ⇒ SerialFF[Serial, F, A]], F, ?], A](fa))
-//      }
-//    })(ParallelF.functorKKParallelF)
-//  }
+  implicit class ParallelOps[F[_], A](val value: Parallel[F, A]) extends AnyVal {
+    def serial: Serial[F, A] = value.cata[Serial](new (Lambda[(F[_], A) ⇒ ParallelF[Serial, F, A]] ~~> Serial){
+      override def apply[F[_]] = new (ParallelF[Serial, F, ?] ~> Serial[F, ?]) {
+        override def apply[A](fa: ParallelF[Serial, F, A]) =
+          FixKK[SerialF, F, A](Free.liftF[ParallelFF[Serial, F, ?], A](fa.compile[Coproduct[F, Serial[F, ?], ?]](
+              Lambda[Coproduct[F, SerialFF[Serial, F, ?], ?] ~> Coproduct[F, Serial[F, ?], ?]](
+                _.fold[Coproduct[F, Serial[F, ?], ?]](new (F ~> Coproduct[F, Serial[F, ?], ?]){
+                  override def apply[B](fb: F[B]) = Coproduct.leftc[F, Serial[F, ?], B](fb)
+                }, new (SerialFF[Serial, F, ?] ~> Coproduct[F, Serial[F, ?], ?]){
+                  override def apply[B](fb: SerialFF[Serial, F, B]) =
+                    Coproduct.rightc[F, Serial[F, ?], B](FixKK[SerialF, F, B](fb.compile[ParallelFF[Serial, F, ?]](
+                      new (Serial[F, ?] ~> ParallelFF[Serial, F, ?]) {
+                        override def apply[C](fc: Serial[F, C]) = FreeApplicative.lift[Coproduct[F, Serial[F, ?], ?], C](Coproduct.rightc[F, Serial[F, ?], C](fc))
+                      }
+                    )))
+                })    
+              )
+          )))
+      }
+    })(ParallelF.functorKKParallelF)
+  }
   /**
    * A chain of fans of parallel and serial F commands
    */
   type Serial[F[_], A] = FixKK[SerialF, F, A]
-//  def Serial[F[_], A](command: F[A]): Serial[F, A] =
+  def Serial[F[_], A](command: F[A]): Serial[F, A] = Parallel(command).serial
 }
