@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.github.m50d</groupId>
@@ -18,7 +19,11 @@
 						<configuration>
 							<!-- Scaladoc interacts poorly with kind-projector -->
 							<excludes>
-								<exclude>tierney/free/package.scala</exclude>							</excludes>
+								<exclude>tierney/free/package.scala</exclude>
+								<exclude>tierney/free/FreeApplicativeSupport.scala</exclude>
+								<exclude>tierney/free/FreeSupport.scala</exclude>
+								<exclude>tierney/free/TierneyFree.scala</exclude>
+							</excludes>
 						</configuration>
 					</execution>
 				</executions>
