@@ -6,6 +6,7 @@ import cats.free.Free
 import tierney.core._
 import cats.~>
 import tierney.free.FreeSupport
+import cats.Applicative
 
 package object free extends CoproductSupport with FreeSupport with FreeApplicativeSupport {
   // TODO: It *might* be nicer to use a dedicated mutual recursion fixed point operator
@@ -44,8 +45,15 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
   /** A fan of chains of parallel and serial F commands
    */
   type Parallel[F[_], A] = FixKK[ParallelF, F, A]
-  def Parallel[F[_], A](command: F[A]): Parallel[F, A] =
-    FixKK[ParallelF, F, A](FreeApplicative.lift[Coproduct[F, SerialFF[Parallel, F, ?], ?], A](Coproduct.leftc[F, SerialFF[Parallel, F, ?], A](command)))
+  object Parallel {
+    def apply[F[_], A](command: F[A]): Parallel[F, A] =
+      FixKK[ParallelF, F, A](FreeApplicative.lift[Coproduct[F, SerialFF[Parallel, F, ?], ?], A](Coproduct.leftc[F, SerialFF[Parallel, F, ?], A](command)))
+    implicit def applicativeParallel[F[_]]: Applicative[Parallel[F, ?]] = new Applicative[Parallel[F, ?]] {
+      override def pure[A](a: A) = FixKK[ParallelF, F, A](FreeApplicative.pure[Coproduct[F, SerialFF[Parallel, F, ?], ?], A](a))
+      override def ap[A, B](ff: Parallel[F, A => B])(fa: Parallel[F, A]) =
+        FixKK[ParallelF, F, B](fa.unfix.ap(ff.unfix))
+    }
+  }
   final implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A] {
     override def serial: Serial[F, A] = parallel.cata[Serial](
       compile_[Coproduct[F, SerialFF[Serial, F, ?], ?], Coproduct[F, Serial[F, ?], ?]](
