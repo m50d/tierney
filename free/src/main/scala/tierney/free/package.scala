@@ -46,7 +46,7 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
   type Parallel[F[_], A] = FixKK[ParallelF, F, A]
   def Parallel[F[_], A](command: F[A]): Parallel[F, A] =
     FixKK[ParallelF, F, A](FreeApplicative.lift[Coproduct[F, SerialFF[Parallel, F, ?], ?], A](Coproduct.leftc[F, SerialFF[Parallel, F, ?], A](command)))
-  implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A] {
+  final implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A] {
     override def serial: Serial[F, A] = parallel.cata[Serial](
       compile_[Coproduct[F, SerialFF[Serial, F, ?], ?], Coproduct[F, Serial[F, ?], ?]](
         rightMap[F, SerialFF[Serial, F, ?], Serial[F, ?]](
@@ -56,12 +56,14 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
         )
       ) andThen[Free[ParallelFF[Serial, F, ?], ?]] liftF_[ParallelFF[Serial, F, ?]] andThen[Serial[F, ?]] fixKK[SerialF, F]
     )(ParallelF.functorKKParallelF)
+    
+//    def map[B](f: A => B): Parallel[F, B] = unfix__
   }
   /** A chain of fans of parallel and serial F commands
    */
   type Serial[F[_], A] = FixKK[SerialF, F, A]
   def Serial[F[_], A](command: F[A]): Serial[F, A] = Parallel(command).serial
-  implicit class SerialOps[F[_], A](override val serial: Serial[F, A]) extends AnyVal with TierneyFree[F, A] {
+  final implicit class SerialOps[F[_], A](override val serial: Serial[F, A]) extends AnyVal with TierneyFree[F, A] {
     override def parallel: Parallel[F, A] = serial.cata[Parallel](
       compileF_[ParallelFF[Parallel, F, ?], Parallel[F, ?]](
         compile_[Coproduct[F, Parallel[F, ?], ?], Coproduct[F, SerialFF[Parallel, F, ?], ?]](
