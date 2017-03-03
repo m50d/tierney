@@ -57,7 +57,7 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
       ) andThen[Free[ParallelFF[Serial, F, ?], ?]] liftF_[ParallelFF[Serial, F, ?]] andThen[Serial[F, ?]] fixKK[SerialF, F]
     )(ParallelF.functorKKParallelF)
     
-//    def map[B](f: A => B): Parallel[F, B] = unfix__
+    def map[B](f: A => B): Parallel[F, B] = FixKK[ParallelF, F, B](parallel.unfix.map(f))
   }
   /** A chain of fans of parallel and serial F commands
    */
