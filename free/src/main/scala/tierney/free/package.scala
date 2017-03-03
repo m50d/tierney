@@ -7,11 +7,12 @@ import tierney.core._
 import cats.~>
 import tierney.free.FreeSupport
 import cats.Applicative
+import cats.Monad
 
+// TODO: It *might* be nicer to use a dedicated mutual recursion fixed point operator
+// to avoid creating garbage by wrapping and unwrapping to convert between serial and parallel trees
+// This would consume more memory though, and in any case be a performance optimization at most
 package object free extends CoproductSupport with FreeSupport with FreeApplicativeSupport {
-  // TODO: It *might* be nicer to use a dedicated mutual recursion fixed point operator
-  // to avoid creating garbage by wrapping and unwrapping to convert between serial and parallel trees
-  // This would consume more memory though, and in any case be a performance optimization at most
   /** A fan of F commands and S constructs to execute parallelly
    */
   type ParallelFF[S[_[_], _], F[_], A] = FreeApplicative[Coproduct[F, S[F, ?], ?], A]
@@ -64,13 +65,21 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
         )
       ) andThen[Free[ParallelFF[Serial, F, ?], ?]] liftF_[ParallelFF[Serial, F, ?]] andThen[Serial[F, ?]] fixKK[SerialF, F]
     )(ParallelF.functorKKParallelF)
-    
-    def map[B](f: A => B): Parallel[F, B] = FixKK[ParallelF, F, B](parallel.unfix.map(f))
   }
   /** A chain of fans of parallel and serial F commands
    */
   type Serial[F[_], A] = FixKK[SerialF, F, A]
-  def Serial[F[_], A](command: F[A]): Serial[F, A] = Parallel(command).serial
+  object Serial {
+    def apply[F[_], A](command: F[A]): Serial[F, A] = Parallel(command).serial
+    implicit def monadSerial[F[_]]: Monad[Serial[F, ?]] = new Monad[Serial[F, ?]] {
+      override def pure[A](a: A) = FixKK[SerialF, F, A](Free.pure[ParallelFF[Serial, F, ?], A](a))
+      override def flatMap[A, B](fa: Serial[F, A])(f: A => Serial[F, B]) =
+        FixKK[SerialF, F, B](fa.unfix.flatMap(f andThen unfixKK[SerialF, F].apply[B]))
+      override def tailRecM[A, B](a: A)(f: A => Serial[F, Either[A, B]]) =
+         // recursion is OK as Free is lazy 
+        flatMap(f(a))(_.fold(tailRecM(_)(f), pure))
+    }
+  }
   final implicit class SerialOps[F[_], A](override val serial: Serial[F, A]) extends AnyVal with TierneyFree[F, A] {
     override def parallel: Parallel[F, A] = serial.cata[Parallel](
       compileF_[ParallelFF[Parallel, F, ?], Parallel[F, ?]](
