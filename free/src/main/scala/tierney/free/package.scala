@@ -54,6 +54,16 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
       override def ap[A, B](ff: Parallel[F, A => B])(fa: Parallel[F, A]) =
         FixKK[ParallelF, F, B](fa.unfix.ap(ff.unfix))
     }
+    implicit def functorKParallel: FunctorK[Parallel] = new FunctorK[Parallel] {
+      override def map[F[_], G[_]](f: F ~> G) =
+        unfixKK[ParallelF, F] andThen[ParallelF[Parallel, G, ?]] compile_[Coproduct[F, SerialFF[Parallel, F, ?], ?], Coproduct[G, SerialFF[Parallel, G, ?], ?]](
+          foldCP_[F, SerialFF[Parallel, F, ?], Coproduct[G, SerialFF[Parallel, G, ?], ?]](
+            f andThen[Coproduct[G, SerialFF[Parallel, G, ?], ?]] left_[G, SerialFF[Parallel, G, ?]],
+            compileF_[Parallel[F, ?], Parallel[G, ?]](
+              new LazyFunctionK[Parallel[F, ?], Parallel[G, ?]](map(f))
+            ) andThen[Coproduct[G, SerialFF[Parallel, G, ?], ?]] right_[G, SerialFF[Parallel, G, ?]])
+        ) andThen[Parallel[G, ?]] fixKK[ParallelF, G]
+    }
   }
   final implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A] {
     override def serial: Serial[F, A] = parallel.cata[Serial](
@@ -65,6 +75,7 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
         )
       ) andThen[Free[ParallelFF[Serial, F, ?], ?]] liftF_[ParallelFF[Serial, F, ?]] andThen[Serial[F, ?]] fixKK[SerialF, F]
     )(ParallelF.functorKKParallelF)
+    def localCompile[G[_]](f: F ~> G): Parallel[G, A] = Parallel.functorKParallel.map(f).apply(parallel)
   }
   /** A chain of fans of parallel and serial F commands
    */
@@ -103,5 +114,6 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
       right_[F, SerialFF[Parallel, F, ?]] andThen[FreeApplicative[Coproduct[F, SerialFF[Parallel, F, ?], ?], ?]]
       lift_[Coproduct[F, SerialFF[Parallel, F, ?], ?]] andThen[Parallel[F, ?]] fixKK[ParallelF, F]
     )(SerialF.functorKKSerialF)
+    def localCompile[G[_]](f: F ~> G): Serial[G, A] = Serial.functorKSerial.map(f).apply(serial)
   }
 }
