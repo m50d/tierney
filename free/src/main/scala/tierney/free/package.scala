@@ -33,13 +33,13 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
   }
   /** A fan of chains of S constructs to execute parallelly
    */
-  type ParallelF[S[_[_], _], F[_], A] = ParallelFF[Lambda[(F[_], A) ⇒ SerialFF[S, F, A]], F, A]
+  type ParallelF[S[_[_], _], F[_], A] = ParallelFF[Lambda[(G[_], B) ⇒ SerialFF[S, G, B]], F, A]
   object ParallelF {
     implicit val functorKKParallelF: FunctorKK[ParallelF] = SerialFF.functorKKSerialFF andThen ParallelFF.functorKKParallelFF
   }
   /** A chain of fans of F commands and S constructs to execute serially
    */
-  type SerialF[S[_[_], _], F[_], A] = SerialFF[Lambda[(F[_], A) ⇒ ParallelFF[S, F, A]], F, A]
+  type SerialF[S[_[_], _], F[_], A] = SerialFF[Lambda[(G[_], B) ⇒ ParallelFF[S, G, B]], F, A]
   object SerialF {
     implicit val functorKKSerialF: FunctorKK[SerialF] = ParallelFF.functorKKParallelFF andThen SerialFF.functorKKSerialFF 
   }
@@ -78,6 +78,17 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
       override def tailRecM[A, B](a: A)(f: A => Serial[F, Either[A, B]]) =
          // recursion is OK as Free is lazy 
         flatMap(f(a))(_.fold(tailRecM(_)(f), pure))
+    }
+    implicit def functorKSerial: FunctorK[Serial] = new FunctorK[Serial] {
+      override def map[F[_], G[_]](f: F ~> G) =
+        unfixKK[SerialF, F] andThen[SerialF[Serial, G, ?]] compileF_[ParallelFF[Serial, F, ?], ParallelFF[Serial, G, ?]](
+          compile_[Coproduct[F, Serial[F, ?], ?], Coproduct[G, Serial[G, ?], ?]](
+            foldCP_[F, Serial[F, ?], Coproduct[G, Serial[G, ?], ?]](
+              f andThen[Coproduct[G, Serial[G, ?], ?]] left_[G, Serial[G, ?]],
+              new LazyFunctionK[Serial[F, ?], Serial[G, ?]](map(f)) andThen[Coproduct[G, Serial[G, ?], ?]] right_[G, Serial[G, ?]]
+            )
+          )
+        ) andThen[Serial[G, ?]] fixKK[SerialF, G]
     }
   }
   final implicit class SerialOps[F[_], A](override val serial: Serial[F, A]) extends AnyVal with TierneyFree[F, A] {
