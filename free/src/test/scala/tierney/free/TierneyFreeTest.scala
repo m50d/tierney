@@ -3,7 +3,7 @@ package tierney.free
 import org.junit.Test
 import cats.syntax.functor._
 import cats.syntax.flatMap._
-import cats.Monad
+import cats.syntax.apply._
 import fs2.Task
 import cats.~>
 import cats.Id
@@ -18,15 +18,27 @@ case class Delay() extends MyCommand[Unit] {
 }
 
 class TierneyFreeTest {
+  val nothingInterpreter = Lambda[MyCommand ~> Id](_.value)
+  
   @Test def basicFunctionality(): Unit = {
     val myCommand = for {
       _ <- Serial(Delay())
       _ <- Serial(Delay())
     } yield 5
     
-    val result = myCommand.runSerialOrUnprincipled(Lambda[MyCommand ~> Id](_.value))
+    val result = myCommand.runSerialOrUnprincipled(nothingInterpreter)
     
     assertEquals(5, result)
+  }
+  
+  @Test def parallel(): Unit = {
+    val myCommand = (Parallel(Delay()).map2(Parallel(Delay())){
+      (_, _) => 2
+    })
+    
+    val result = myCommand.runSerialOrUnprincipled(nothingInterpreter)
+    
+    assertEquals(2, result)
   }
   
 }
