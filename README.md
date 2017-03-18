@@ -26,6 +26,7 @@ TODO
 
 ### Features required for 1.0
 
+ * Add rationale to this document, including comparison to the talk about this kind of thing if I can find it
  * Introduce ApplicativeBuilder or similar (I assume Cats has something like that?)
  * Write tests for interleaved serial/parallel flows
  * Write examples in the this document
