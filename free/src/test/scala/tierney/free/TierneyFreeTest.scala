@@ -11,6 +11,7 @@ import org.junit.Assert.assertEquals
 import tierney.parallel.ParallelApplicative
 import cats.Monad
 import scala.annotation.tailrec
+import org.junit.Ignore
 
 sealed trait MyCommand[A] {
   def value: A
@@ -64,13 +65,17 @@ class TierneyFreeTest {
     assertEquals(5, serialCommand.runSerialOrUnprincipled(nothingInterpreter))
     
   @Test def serialCost(): Unit =
-    assertEquals(CostEstimate(2, 5), serialCommand.runSerialOrUnprincipled(costInterpreter))
+    assertEquals(CostEstimate(2, 5), serialCommand.runParallel(costInterpreter))
 
   @Test def parallelNothing(): Unit =
     assertEquals(2, parallelCommand.runSerialOrUnprincipled(nothingInterpreter))
     
+  @Ignore
   @Test def parallelCost(): Unit =
-    assertEquals(CostEstimate(1, 2), parallelCommand.runSerialOrUnprincipled(costInterpreter))
+    assertEquals(CostEstimate(1, 2), parallelCommand.runParallel(costInterpreter))
+    
+  @Test def parallelCostRunSerial(): Unit =
+    assertEquals(CostEstimate(2, 2), parallelCommand.runSerialOrUnprincipled(costInterpreter))
 
   @Test def nesting(): Unit = {
 
