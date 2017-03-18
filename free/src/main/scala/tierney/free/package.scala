@@ -22,6 +22,13 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
         compile_[Coproduct[F, S[F, ?], ?], Coproduct[F, T[F, ?], ?]](rightMap[F, S[F, ?], T[F, ?]](f))
     }
   }
+  type SemiParallel[F[_], A] = FixKK[ParallelFF, F, A]
+  implicit def applicativeSemiParallel[F[_]]: Applicative[SemiParallel[F, ?]] = new Applicative[SemiParallel[F, ?]] {
+    override def pure[A](a: A) = FixKK[ParallelFF, F, A](FreeApplicative.pure[Coproduct[F, SemiParallel[F, ?], ?], A](a))
+    override def ap[A, B](ff: SemiParallel[F, A => B])(fa: SemiParallel[F, A]) =
+      FixKK[ParallelFF, F, B](fa.unfix.ap(ff.unfix))
+  }
+  
   /** A chain of S constructs to execute serially
    */
   type SerialFF[S[_[_], _], F[_], A] = Free[S[F, ?], A]
