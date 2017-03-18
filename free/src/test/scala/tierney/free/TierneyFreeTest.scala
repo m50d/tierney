@@ -27,11 +27,9 @@ case class Delay() extends MyCommand[Unit] {
  */
 case class CostEstimate[A](cost: Int, value: A)
 object CostEstimate {
-  implicit def instanceCostEstimate: ParallelApplicative[CostEstimate] with Monad[CostEstimate] =
-    new ParallelApplicative[CostEstimate] with Monad[CostEstimate] {
+  implicit def monadCostEstimate: Monad[CostEstimate] =
+    new Monad[CostEstimate] {
       override def pure[A](a: A) = CostEstimate(0, a)
-      override def ap[A, B](ff: CostEstimate[A ⇒ B])(fa: CostEstimate[A]) =
-        CostEstimate(ff.cost max fa.cost, ff.value(fa.value))
       override def flatMap[A, B](fa: CostEstimate[A])(f: A ⇒ CostEstimate[B]) = {
         val b = f(fa.value)
         CostEstimate(fa.cost + b.cost, b.value)
@@ -45,6 +43,12 @@ object CostEstimate {
         }
         go(f(a))
       }
+    }
+  implicit def parallelApplicativeCostEstimate: ParallelApplicative[CostEstimate] =
+    new ParallelApplicative[CostEstimate] {
+      override def pure[A](a: A) = CostEstimate(0, a)
+      override def ap[A, B](ff: CostEstimate[A ⇒ B])(fa: CostEstimate[A]) =
+        CostEstimate(ff.cost max fa.cost, ff.value(fa.value))
     }
 }
 
@@ -70,7 +74,6 @@ class TierneyFreeTest {
   @Test def parallelNothing(): Unit =
     assertEquals(2, parallelCommand.runSerialOrUnprincipled(nothingInterpreter))
     
-  @Ignore
   @Test def parallelCost(): Unit =
     assertEquals(CostEstimate(1, 2), parallelCommand.runParallel(costInterpreter))
     

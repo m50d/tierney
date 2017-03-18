@@ -18,27 +18,19 @@ trait TierneyFree[F[_], A] extends Any {
   def serial: Serial[F, A]
   final def compile[G[_]](f: F ~> G): Serial[G, A] = serial.localCompile(f)
 
-  private[this] def flattenParallelFans(implicit ap: Applicative[F]): Free[F, A] =
-    serial.cata[Free](foldMapF_[ParallelFF[Free, F, ?], Free[F, ?]](
-      foldMap_[Coproduct[F, Free[F, ?], ?], Free[F, ?]](
-        foldCP_[F, Free[F, ?], Free[F, ?]](liftF_, FunctionK.id[Free[F, ?]]))))(SerialF.functorKKSerialF)
-  
-//  private[this] def flattenSerialChains(implicit mo: Monad[F]): SemiParallel[F, A] =
-//    parallel.cata[SemiParallel](
-//      foldMap_[Coproduct[F, Free[SemiParallel[F, ?], ?], ?], SemiParallel[F, ?]](
-//        foldCP_[F, Free[SemiParallel[F, ?], ?], SemiParallel[F, ?]](
-//          left_[F, SemiParallel[F, ?]] andThen[ParallelFF[SemiParallel, F, ?]] 
-//            lift_[Coproduct[F, SemiParallel[F, ?], ?]] andThen[SemiParallel[F, ?]] fixKK[ParallelFF, F],
-//          null)
-//      )
-//    )(ParallelF.functorKKParallelF)
+  private[this] def run(implicit mo: Monad[F], ap: Applicative[F]): F[A] =
+    serial.cata[IdKK](
+      foldMapF_[ParallelFF[IdKK, F, ?], F](
+        foldMap_[Coproduct[F, F, ?], F](
+          foldCP_[F, F, F](FunctionK.id, FunctionK.id)
+        )(ap)
+      )
+    )(SerialF.functorKKSerialF)
         
-  final def runSerialOrUnprincipled(implicit mo: Monad[F]): F[A] =
-    flattenParallelFans.runTailRec
+  final def runSerialOrUnprincipled(implicit mo: Monad[F]): F[A] = run
   final def runSerialOrUnprincipled[G[_]](f: F ~> G)(implicit mo: Monad[G]): G[A] = compile(f).runSerialOrUnprincipled
   
-  final def runParallel(implicit mo: Monad[F], pa: ParallelApplicative[F]): F[A] =
-    flattenParallelFans(pa).runTailRec
+  final def runParallel(implicit mo: Monad[F], pa: ParallelApplicative[F]): F[A] = run(mo, pa)
   final def runParallel[G[_]](f: F ~> G)(implicit mo: Monad[G], pa: ParallelApplicative[G]): G[A] =
     compile(f).runParallel
 }
