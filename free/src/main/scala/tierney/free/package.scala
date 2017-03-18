@@ -22,6 +22,11 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
         compile_[Coproduct[F, S[F, ?], ?], Coproduct[F, T[F, ?], ?]](rightMap[F, S[F, ?], T[F, ?]](f))
     }
   }
+  
+  /** TODO: this type could potentially offer a simpler model for when the user only cares about parallel/not
+   *  and not about the Free monad construction (i.e. when F is an existing parallelizable monad like
+   *  Future or Task, rather than a custom command type) 
+   */
   type SemiParallel[F[_], A] = FixKK[ParallelFF, F, A]
   implicit def applicativeSemiParallel[F[_]]: Applicative[SemiParallel[F, ?]] = new Applicative[SemiParallel[F, ?]] {
     override def pure[A](a: A) = FixKK[ParallelFF, F, A](FreeApplicative.pure[Coproduct[F, SemiParallel[F, ?], ?], A](a))

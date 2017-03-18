@@ -2,15 +2,51 @@
 
 [![Build Status](https://travis-ci.org/m50d/tierney.svg?branch=master)](https://travis-ci.org/m50d/tierney)
 
-A project exploring recursion-schemes style and higher-kinded constructs in Scala:
+Generic structured commands with explicit parallelism
+ 
+## How to use
+
+### Add the dependency
+
+    <dependency>
+		<groupId>com.github.m50d</groupId>
+		<artifactId>tierney-core</artifactId>
+		<version>0.3</version>
+	</dependency>
+
+### Direct use with `Future` or `Task`
+
+TODO
+
+### Use with custom command type and interpreter
+
+TODO
+
+## Information for developers
+
+### Features required for 1.0
+
+ * Introduce ApplicativeBuilder or similar (I assume Cats has something like that?)
+ * Write tests for interleaved serial/parallel flows
+ * Write examples in the this document
+ 
+### Other planned features
+
+ * Add `tut-maven-plugin` (once implemented) to enforce that code examples in this document are correct
+
+### Current project layout
 
  * Higher-kinded variants of some general constructs as necessary to support the rest of the project
    (`core`, potentially to be replaced with use of polykinds from Typelevel Scala)
  * Recursion-schemes style `Fix`/`FixK`/... constructs and traversal implementations
    (currently also `core`, potentially to be spun out into a separate module if the above remains necessary)
- * Implementation of a free hybrid monad-applicative structure, making use of the above (`free`) 
-
-## Developing in Eclipse
+ * `ParallelApplicative` type to express explicit, intentional parallelism
+   (`free`, potentially to be spun out into a separate module)
+   * Implementations for common cases (stdlib `Future`, monix `Task`, fs2 `Task`),
+     potentially to be spun out into their own modules to minimize dependencies
+ * Implementation of a free hybrid monad-applicative structure, making use of all the above (`free`)
+ 
+### How to develop in Eclipse
 
  1. Usual Eclipse Scala development setup:
   1. Unzip Eclipse
