@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/m50d/tierney.svg?branch=master)](https://travis-ci.org/m50d/tierney)
 
-Generic structured commands with explicit parallelism
+A generic library for structured commands with explicit parallelism.
  
 ## How to use
 

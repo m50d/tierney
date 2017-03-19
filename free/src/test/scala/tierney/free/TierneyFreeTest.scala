@@ -34,12 +34,12 @@ object CostEstimate {
         val b = f(fa.value)
         CostEstimate(fa.cost + b.cost, b.value)
       }
-      override def tailRecM[A, B](a: A)(f: A => CostEstimate[Either[A,B]]): CostEstimate[B] = {
+      override def tailRecM[A, B](a: A)(f: A ⇒ CostEstimate[Either[A, B]]): CostEstimate[B] = {
         @tailrec def go(current: CostEstimate[Either[A, B]]): CostEstimate[B] = current match {
-          case CostEstimate(cost, Left(a)) =>
+          case CostEstimate(cost, Left(a)) ⇒
             val CostEstimate(nextCost, nextValue) = f(a)
             go(CostEstimate(cost + nextCost, nextValue))
-          case CostEstimate(cost, Right(b)) => CostEstimate(cost, b)
+          case CostEstimate(cost, Right(b)) ⇒ CostEstimate(cost, b)
         }
         go(f(a))
       }
@@ -54,34 +54,39 @@ object CostEstimate {
 
 class TierneyFreeTest {
   val nothingInterpreter = Lambda[MyCommand ~> Id](_.value)
-  val costInterpreter = Lambda[MyCommand ~> CostEstimate]{c => CostEstimate(1, c.value)}
-  
-  val serialCommand = for {
-    _ ← Serial(Delay())
-    _ ← Serial(Delay())
-  } yield 5
+  val costInterpreter = Lambda[MyCommand ~> CostEstimate] { c ⇒ CostEstimate(1, c.value) }
 
-  val parallelCommand = Parallel(Delay()) |@| Parallel(Delay()) map {
-    (_, _) ⇒ 2
-  }
+  def serialRepeat(command: Serial[MyCommand, Unit]): Serial[MyCommand, Unit] =
+    for {
+      x ← command
+      y ← command
+      z ← command
+    } yield {}
+
+  def parallelRepeat(command: Parallel[MyCommand, Unit]): Parallel[MyCommand, Unit] =
+    (command |@| command |@| command) map {
+      (_, _, _) ⇒
+    }
 
   @Test def serialNothing(): Unit =
-    assertEquals(5, serialCommand.runSerialOrUnprincipled(nothingInterpreter))
-    
+    assertEquals({}, serialRepeat(Serial(Delay())).runSerialOrUnprincipled(nothingInterpreter))
+
   @Test def serialCost(): Unit =
-    assertEquals(CostEstimate(2, 5), serialCommand.runParallel(costInterpreter))
+    assertEquals(CostEstimate(3, {}), serialRepeat(Serial(Delay())).runParallel(costInterpreter))
 
   @Test def parallelNothing(): Unit =
-    assertEquals(2, parallelCommand.runSerialOrUnprincipled(nothingInterpreter))
-    
+    assertEquals({}, parallelRepeat(Parallel(Delay())).runSerialOrUnprincipled(nothingInterpreter))
+
   @Test def parallelCost(): Unit =
-    assertEquals(CostEstimate(1, 2), parallelCommand.runParallel(costInterpreter))
-    
+    assertEquals(CostEstimate(1, {}),  parallelRepeat(Parallel(Delay())).runParallel(costInterpreter))
+
   @Test def parallelCostRunSerial(): Unit =
-    assertEquals(CostEstimate(2, 2), parallelCommand.runSerialOrUnprincipled(costInterpreter))
+    assertEquals(CostEstimate(3, {}),  parallelRepeat(Parallel(Delay())).runSerialOrUnprincipled(costInterpreter))
 
   @Test def nesting(): Unit = {
-
+    val interleavedCommand = serialRepeat(parallelRepeat(serialRepeat(parallelRepeat(Parallel(Delay())).serial).parallel).serial)
+    assertEquals(CostEstimate(9, {}), interleavedCommand.runParallel(costInterpreter))
+    assertEquals(CostEstimate(81, {}), interleavedCommand.runSerialOrUnprincipled(costInterpreter))
   }
 
 }
