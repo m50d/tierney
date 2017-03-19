@@ -1,8 +1,15 @@
 # tierney
 
+Generic library for structured commands with explicit parallelism
+
 [![Build Status](https://travis-ci.org/m50d/tierney.svg?branch=master)](https://travis-ci.org/m50d/tierney)
 
-A generic library for structured commands with explicit parallelism.
+Combining Free Monads and Free Applicatives is a great way to get the advantages of both, as seen in e.g.
+[this talk by Markus Hauck](https://speakerdeck.com/markus1189/free-monads-and-free-applicatives).
+Tierney offers some simple wrappers to reduce the boilerplate of doing this with your own types,
+while also enforcing that code is always very explicit about which steps can and can't happen in parallel,
+freeing you to refactor with confidence that a simple change isn't going to accidentally serialise
+all of your operations. 
  
 ## How to use
 
@@ -10,8 +17,8 @@ A generic library for structured commands with explicit parallelism.
 
     <dependency>
 		<groupId>com.github.m50d</groupId>
-		<artifactId>tierney-core</artifactId>
-		<version>0.3</version>
+		<artifactId>tierney-free</artifactId>
+		<version>0.2</version>
 	</dependency>
 
 ### Direct use with `Future` or `Task`
