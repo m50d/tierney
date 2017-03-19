@@ -12,5 +12,6 @@ trait FreeSupport {
   }
   def foldMapF_[F[_], G[_]: Monad](f: F ~> G): Free[F, ?] ~> G = Lambda[Free[F, ?] ~> G](_.foldMap(f))
   def liftF_[F[_]]: F ~> Free[F, ?] = Lambda[F ~> Free[F, ?]](Free.liftF(_))
+  def runTailRec_[F[_]: Monad]: Free[F, ?] ~> F = Lambda[Free[F, ?] ~> F](_.runTailRec)
 }
 object FreeSupport extends FreeSupport
