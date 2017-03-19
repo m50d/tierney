@@ -3,7 +3,7 @@ package tierney.free
 import org.junit.Test
 import cats.syntax.functor._
 import cats.syntax.flatMap._
-import cats.syntax.apply._
+import cats.syntax.cartesian._
 import fs2.Task
 import cats.~>
 import cats.Id
@@ -61,9 +61,9 @@ class TierneyFreeTest {
     _ ← Serial(Delay())
   } yield 5
 
-  val parallelCommand = (Parallel(Delay()).map2(Parallel(Delay())) {
+  val parallelCommand = Parallel(Delay()) |@| Parallel(Delay()) map {
     (_, _) ⇒ 2
-  })
+  }
 
   @Test def serialNothing(): Unit =
     assertEquals(5, serialCommand.runSerialOrUnprincipled(nothingInterpreter))
