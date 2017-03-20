@@ -37,7 +37,8 @@ TODO
    * `Node[F, A] = Coproduct[F, Serial[F, ?], A`
    * `Parallel[F, A] = FreeApplicative[Node[F, ?], A]`
    * `Serial[F, A] = Free[Parallel[F, ?], A`
- * The recursion is defined using a fixed point combinator `FixKK` rather than directly
+ * The recursion is implemented using a fixed point combinator `FixKK` rather than directly
+   * `Node` therefore actually has a slightly different type; the type above is called `UNode`
 
 ### Features required for 1.0
 
