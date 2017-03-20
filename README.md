@@ -31,10 +31,17 @@ TODO
 
 ## Information for developers
 
+### Design
+
+ * Conceptually there are three mutually recursive `TierneyFree` types:
+   * `Node[F, A] = Coproduct[F, Serial[F, ?], A`
+   * `Parallel[F, A] = FreeApplicative[Node[F, ?], A]`
+   * `Serial[F, A] = Free[Parallel[F, ?], A`
+ * The recursion is defined using a fixed point combinator `FixKK` rather than directly
+
 ### Features required for 1.0
 
- * Add rationale to this document, including comparison to the talk about this kind of thing if I can find it
- * Write tests for interleaved serial/parallel flows
+ * Test some of the parallel implementations (e.g. at least fs2 task)
  * Write examples in the this document
  
 ### Other planned features
