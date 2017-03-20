@@ -42,11 +42,13 @@ TODO
 
 ### Features required for 1.0
 
- * Test some of the parallel implementations (e.g. at least fs2 task)
  * Write examples in the this document
  
-### Other planned features
+### Other desirable features
 
+ * Replace current basic performance test of `ParallelApplicative` with something more robust
+ * Add more `ParallelApplicative` implementations e.g. scalaz-concurrent `Task`
+ * Add performance tests for all `ParallelApplicative` implementations
  * Add `tut-maven-plugin` (once implemented) to enforce that code examples in this document are correct
 
 ### Current project layout
