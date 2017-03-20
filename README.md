@@ -5,7 +5,7 @@ Generic library for structured commands with explicit parallelism
 [![Build Status](https://travis-ci.org/m50d/tierney.svg?branch=master)](https://travis-ci.org/m50d/tierney)
 
 Combining Free Monads and Free Applicatives is a great way to get the advantages of both, as seen in e.g.
-[this talk by Markus Hauck](https://speakerdeck.com/markus1189/free-monads-and-free-applicatives).
+[this talk by Markus Hauck](https://github.com/markus1189/flatmap-oslo-2016).
 Tierney offers some simple wrappers to reduce the boilerplate of doing this with your own types,
 while also enforcing that code is always very explicit about which steps can and can't happen in parallel,
 freeing you to refactor with confidence that a simple change isn't going to accidentally serialise
@@ -43,6 +43,8 @@ TODO
 ### Features required for 1.0
 
  * Write examples in the this document
+  * I want to crib them from https://github.com/markus1189/flatmap-oslo-2016/tree/master/src/main/scala/de/codecentric/github
+  but have to be able to email markus1189 first
  
 ### Other desirable features
 
