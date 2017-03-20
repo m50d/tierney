@@ -37,15 +37,18 @@ TODO
    * `Node[F, A] = Coproduct[F, Serial[F, ?], A`
    * `Parallel[F, A] = FreeApplicative[Node[F, ?], A]`
    * `Serial[F, A] = Free[Parallel[F, ?], A`
- * The recursion is defined using a fixed point combinator `FixKK` rather than directly
+ * The recursion is implemented using a fixed point combinator `FixKK` rather than directly
+   * `Node` therefore actually has a slightly different type; the type above is called `UNode`
 
 ### Features required for 1.0
 
- * Test some of the parallel implementations (e.g. at least fs2 task)
  * Write examples in the this document
  
-### Other planned features
+### Other desirable features
 
+ * Replace current basic performance test of `ParallelApplicative` with something more robust
+ * Add more `ParallelApplicative` implementations e.g. scalaz-concurrent `Task`
+ * Add performance tests for all `ParallelApplicative` implementations
  * Add `tut-maven-plugin` (once implemented) to enforce that code examples in this document are correct
 
 ### Current project layout
