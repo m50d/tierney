@@ -14,16 +14,19 @@ import tierney.parallel.ParallelApplicative
 import cats.free.FreeApplicative
 
 trait TierneyFree[F[_], A] extends Any {
+  def node: Node[F, A]
   def parallel: Parallel[F, A]
   def serial: Serial[F, A]
+  
   final def compile[G[_]](f: F ~> G): Serial[G, A] = serial.localCompile(f)
 
   private[this] def run(implicit mo: Monad[F], ap: Applicative[F]): F[A] =
-    parallel.cata[IdKK](
-      foldMap_[Coproduct[F, SerialFF[IdKK, F, ?], ?], F](
-        foldCP_[F, Free[F, ?], F](FunctionK.id, runTailRec_[F])
-      )(ap)
-    )(ParallelF.functorKKParallelF)
+    node.cata[IdKK](
+      foldCP_[F, Free[FreeApplicative[F, ?], ?], F](
+        FunctionK.id,
+        foldMapF_[FreeApplicative[F, ?], F](fold_(ap))
+      )
+    )(NodeSerialParallelF.functorKKNodeSerialParallelF)
         
   final def runSerialOrUnprincipled(implicit mo: Monad[F]): F[A] = run
   final def runSerialOrUnprincipled[G[_]](f: F ~> G)(implicit mo: Monad[G]): G[A] = compile(f).runSerialOrUnprincipled
