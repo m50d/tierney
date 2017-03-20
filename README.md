@@ -41,8 +41,6 @@ TODO
 
 ### Features required for 1.0
 
- * Rewrite with `Node` as the recursive type, I think that makes things easier
- * Write tests for interleaved serial/parallel flows
  * Write examples in the this document
  
 ### Other planned features
