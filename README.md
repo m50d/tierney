@@ -41,6 +41,7 @@ TODO
 
 ### Features required for 1.0
 
+ * Test some of the parallel implementations (e.g. at least fs2 task)
  * Write examples in the this document
  
 ### Other planned features
