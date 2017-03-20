@@ -11,9 +11,9 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class ParallelApplicativeTest {
-  private[this] def timeOf(f: => Unit) = {
+  private[this] def timeOf(task: Task[Unit]) = {
     val start = System.currentTimeMillis()
-    f
+    val _ = Await.ready(task.unsafeRunAsyncFuture, 1 minute)
     System.currentTimeMillis() - start
   }
   
@@ -22,13 +22,13 @@ class ParallelApplicativeTest {
     
     val sleep = Parallel(Task(Thread.sleep(1000L)))
     val command = (sleep |@| sleep |@| sleep).map {(_, _, _) => }
-    val serialTask = command.runSerialOrUnprincipled
     
-    val timeSerial = timeOf { 
-      val _ = Await.ready(serialTask.unsafeRunAsyncFuture, 1 minute) 
-    }
-    
+    val timeSerial = timeOf(command.runSerialOrUnprincipled)
     assertTrue(timeSerial > 3000)
-    assertFalse(timeSerial > 4000)
+    assertFalse(timeSerial > 3100)
+    
+    val timeParallel = timeOf(command.runParallel)
+    assertTrue(timeParallel > 1000)
+    assertFalse(timeParallel > 1100)
   }
 }
