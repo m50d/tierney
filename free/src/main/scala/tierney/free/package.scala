@@ -69,11 +69,11 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
   implicit def functorKParallel: FunctorK[Parallel] = new FunctorK[Parallel] {
     override def map[F[_], G[_]](f: F ~> G) =
       unfixKK[ParallelF, F] andThen[ParallelF[Parallel, G, ?]] compile_[Node[F, ?], Node[G, ?]](
-        foldCP_[F, Serial[F, ?], Coproduct[G, Serial[G, ?], ?]](
-          f andThen[Coproduct[G, Serial[G, ?], ?]] left_[G, Serial[G, ?]],
+        foldCP_[F, Serial[F, ?], Node[G, ?]](
+          f andThen[Node[G, ?]] left_[G, Serial[G, ?]],
           compileF_[Parallel[F, ?], Parallel[G, ?]](
             new LazyFunctionK[Parallel[F, ?], Parallel[G, ?]](map(f))
-          ) andThen[Coproduct[G, Serial[G, ?], ?]] right_[G, Serial[G, ?]])
+          ) andThen[Node[G, ?]] right_[G, Serial[G, ?]])
       ) andThen[Parallel[G, ?]] fixKK[ParallelF, G]
   }
   final implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A] {
