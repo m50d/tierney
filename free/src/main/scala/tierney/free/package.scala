@@ -9,29 +9,27 @@ import tierney.free.FreeSupport
 import cats.Applicative
 import cats.Monad
 
-// TODO: It *might* be nicer to use a dedicated mutual recursion fixed point operator
-// to avoid creating garbage by wrapping and unwrapping to convert between serial and parallel trees
-// This would consume more memory though, and in any case be a performance optimization at most
 package object free extends CoproductSupport with FreeSupport with FreeApplicativeSupport {
+  /** Either an immediate command F or a recursive S structure
+   */
+  type Node[S[_[_], _], F[_], A] = Coproduct[F, S[F, ?], A]
+  object Node {
+    implicit val functorKKNode: FunctorKK[Node] = new FunctorKK[Node] {
+      override def map[S[_[_], _], T[_[_], _], F[_]](f: S[F, ?] ~> T[F, ?]) =
+        rightMap[F, S[F, ?], T[F, ?]](f)
+    }
+    def right[S[_[_], _], F[_], A](s: S[F, A]): Node[S, F, A] =
+      Coproduct.rightc[F, S[F, ?], A](s)
+  }
+  
   /** A fan of F commands and S constructs to execute parallelly
    */
-  type ParallelFF[S[_[_], _], F[_], A] = FreeApplicative[Coproduct[F, S[F, ?], ?], A]
+  type ParallelFF[S[_[_], _], F[_], A] = FreeApplicative[Node[S, F, ?], A]
   object ParallelFF {
     implicit val functorKKParallelFF: FunctorKK[ParallelFF] = new FunctorKK[ParallelFF] {
       override def map[S[_[_], _], T[_[_], _], F[_]](f: S[F, ?] ~> T[F, ?]) = 
         compile_[Coproduct[F, S[F, ?], ?], Coproduct[F, T[F, ?], ?]](rightMap[F, S[F, ?], T[F, ?]](f))
     }
-  }
-  
-  /** TODO: this type could potentially offer a simpler model for when the user only cares about parallel/not
-   *  and not about the Free monad construction (i.e. when F is an existing parallelizable monad like
-   *  Future or Task, rather than a custom command type) 
-   */
-  type SemiParallel[F[_], A] = FixKK[ParallelFF, F, A]
-  implicit def applicativeSemiParallel[F[_]]: Applicative[SemiParallel[F, ?]] = new Applicative[SemiParallel[F, ?]] {
-    override def pure[A](a: A) = FixKK[ParallelFF, F, A](FreeApplicative.pure[Coproduct[F, SemiParallel[F, ?], ?], A](a))
-    override def ap[A, B](ff: SemiParallel[F, A => B])(fa: SemiParallel[F, A]) =
-      FixKK[ParallelFF, F, B](fa.unfix.ap(ff.unfix))
   }
   
   /** A chain of S constructs to execute serially
@@ -48,12 +46,6 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
   type ParallelF[S[_[_], _], F[_], A] = ParallelFF[Lambda[(G[_], B) ⇒ SerialFF[S, G, B]], F, A]
   object ParallelF {
     implicit val functorKKParallelF: FunctorKK[ParallelF] = SerialFF.functorKKSerialFF andThen ParallelFF.functorKKParallelFF
-  }
-  /** A chain of fans of F commands and S constructs to execute serially
-   */
-  type SerialF[S[_[_], _], F[_], A] = SerialFF[Lambda[(G[_], B) ⇒ ParallelFF[S, G, B]], F, A]
-  object SerialF {
-    implicit val functorKKSerialF: FunctorKK[SerialF] = ParallelFF.functorKKParallelFF andThen SerialFF.functorKKSerialFF 
   }
   /** A fan of chains of parallel and serial F commands
    */
@@ -78,54 +70,32 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
       ) andThen[Parallel[G, ?]] fixKK[ParallelF, G]
   }
   final implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A] {
-    override def serial: Serial[F, A] = parallel.cata[Serial](
-      compile_[Coproduct[F, SerialFF[Serial, F, ?], ?], Coproduct[F, Serial[F, ?], ?]](
-        rightMap[F, SerialFF[Serial, F, ?], Serial[F, ?]](
-          compileF_[Serial[F, ?], ParallelFF[Serial, F, ?]](
-            right_[F, Serial[F, ?]] andThen[ParallelFF[Serial, F, ?]] lift_[Coproduct[F, Serial[F, ?], ?]]
-          ) andThen[Serial[F, ?]] fixKK[SerialF, F]
-        )
-      ) andThen[Free[ParallelFF[Serial, F, ?], ?]] liftF_[ParallelFF[Serial, F, ?]] andThen[Serial[F, ?]] fixKK[SerialF, F]
-    )(ParallelF.functorKKParallelF)
+    override def serial: Serial[F, A] = Free.liftF[Parallel[F, ?], A](parallel)
     def localCompile[G[_]](f: F ~> G): Parallel[G, A] = functorKParallel.map(f).apply(parallel)
   }
   /** A chain of fans of parallel and serial F commands
    */
-  type Serial[F[_], A] = FixKK[SerialF, F, A]
+  type Serial[F[_], A] = SerialFF[Parallel, F, A]
   object Serial {
     def apply[F[_], A](command: F[A]): Serial[F, A] = Parallel(command).serial
   }
   implicit def monadSerial[F[_]]: Monad[Serial[F, ?]] = new Monad[Serial[F, ?]] {
-    override def pure[A](a: A) = FixKK[SerialF, F, A](Free.pure[ParallelFF[Serial, F, ?], A](a))
+    override def pure[A](a: A) = Free.pure[Parallel[F, ?], A](a)
     override def flatMap[A, B](fa: Serial[F, A])(f: A => Serial[F, B]) =
-      FixKK[SerialF, F, B](fa.unfix.flatMap(f andThen unfixKK[SerialF, F].apply[B]))
+      fa.flatMap(f)
     override def tailRecM[A, B](a: A)(f: A => Serial[F, Either[A, B]]) =
        // recursion is OK as Free is lazy 
       flatMap(f(a))(_.fold(tailRecM(_)(f), pure))
   }
   implicit def functorKSerial: FunctorK[Serial] = new FunctorK[Serial] {
     override def map[F[_], G[_]](f: F ~> G) =
-      unfixKK[SerialF, F] andThen[SerialF[Serial, G, ?]] compileF_[ParallelFF[Serial, F, ?], ParallelFF[Serial, G, ?]](
-        compile_[Coproduct[F, Serial[F, ?], ?], Coproduct[G, Serial[G, ?], ?]](
-          foldCP_[F, Serial[F, ?], Coproduct[G, Serial[G, ?], ?]](
-            f andThen[Coproduct[G, Serial[G, ?], ?]] left_[G, Serial[G, ?]],
-            new LazyFunctionK[Serial[F, ?], Serial[G, ?]](map(f)) andThen[Coproduct[G, Serial[G, ?], ?]] right_[G, Serial[G, ?]]
-          )
-        )
-      ) andThen[Serial[G, ?]] fixKK[SerialF, G]
+      compileF_[Parallel[F, ?], Parallel[G, ?]](
+        functorKParallel.map(f)
+      )
   }
   final implicit class SerialOps[F[_], A](override val serial: Serial[F, A]) extends AnyVal with TierneyFree[F, A] {
-    override def parallel: Parallel[F, A] = serial.cata[Parallel](
-      compileF_[ParallelFF[Parallel, F, ?], Parallel[F, ?]](
-        compile_[Coproduct[F, Parallel[F, ?], ?], Coproduct[F, SerialFF[Parallel, F, ?], ?]](
-          rightMap[F, Parallel[F, ?], SerialFF[Parallel, F, ?]](
-            liftF_[Parallel[F, ?]]
-          )
-        ) andThen[Parallel[F, ?]] fixKK[ParallelF, F]
-      ) andThen[Coproduct[F, SerialFF[Parallel, F, ?], ?]]
-      right_[F, SerialFF[Parallel, F, ?]] andThen[FreeApplicative[Coproduct[F, SerialFF[Parallel, F, ?], ?], ?]]
-      lift_[Coproduct[F, SerialFF[Parallel, F, ?], ?]] andThen[Parallel[F, ?]] fixKK[ParallelF, F]
-    )(SerialF.functorKKSerialF)
+    override def parallel: Parallel[F, A] =
+      new FixKK[ParallelF, F, A](FreeApplicative.lift[Node[Serial, F, ?], A](Node.right(serial)))
     def localCompile[G[_]](f: F ~> G): Serial[G, A] = functorKSerial.map(f).apply(serial)
   }
 }

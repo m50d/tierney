@@ -19,13 +19,11 @@ trait TierneyFree[F[_], A] extends Any {
   final def compile[G[_]](f: F ~> G): Serial[G, A] = serial.localCompile(f)
 
   private[this] def run(implicit mo: Monad[F], ap: Applicative[F]): F[A] =
-    serial.cata[IdKK](
-      foldMapF_[ParallelFF[IdKK, F, ?], F](
-        foldMap_[Coproduct[F, F, ?], F](
-          foldCP_[F, F, F](FunctionK.id, FunctionK.id)
-        )(ap)
-      )
-    )(SerialF.functorKKSerialF)
+    parallel.cata[IdKK](
+      foldMap_[Coproduct[F, SerialFF[IdKK, F, ?], ?], F](
+        foldCP_[F, Free[F, ?], F](FunctionK.id, runTailRec_[F])
+      )(ap)
+    )(ParallelF.functorKKParallelF)
         
   final def runSerialOrUnprincipled(implicit mo: Monad[F]): F[A] = run
   final def runSerialOrUnprincipled[G[_]](f: F ~> G)(implicit mo: Monad[G]): G[A] = compile(f).runSerialOrUnprincipled
