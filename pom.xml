@@ -230,11 +230,6 @@
 				<artifactId>scala-library</artifactId>
 				<version>${scala.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.typelevel</groupId>
-				<artifactId>macro-compat${scala.suffix}</artifactId>
-				<version>1.1.1</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<modules>
