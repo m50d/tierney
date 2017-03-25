@@ -12,6 +12,7 @@ import cats.instances.set._
 import cats.syntax.traverse._
 import play.api.libs.json._
 import scala.concurrent.Future
+import tierney.free._
 
 sealed trait GitHub[A]
 case class GetComments(owner: Owner, repo: Repo, issue: Issue)
@@ -64,42 +65,33 @@ object GitHub {
 }
 
 object GitHubDsl extends Serializable {
-  type GitHubApplicative[A] = FreeApplicative[GitHub, A]
-  type GitHubMonadic[A] = Free[GitHub, A]
-  type GitHubBoth[A] = Free[Coproduct[GitHub,GitHubApplicative,?],A]
+  def getCommentsMonad(owner: Owner, repo: Repo, issue: Issue): Serial[GitHub, List[Comment]] =
+    Serial(GetComments(owner, repo, issue))
 
-  def getCommentsMonad(owner: Owner, repo: Repo, issue: Issue): GitHubMonadic[List[Comment]] =
-    Free.liftF(GetComments(owner, repo, issue))
+  def getCommentsM(owner: Owner, repo: Repo, issue: Issue): Serial[GitHub, List[Comment]] =
+    Serial(GetComments(owner, repo, issue))
 
-  def getCommentsM(owner: Owner, repo: Repo, issue: Issue): GitHubBoth[List[Comment]] =
-    Free.liftF[Coproduct[GitHub,GitHubApplicative,?],List[Comment]](
-      Coproduct.left[GitHubApplicative](GetComments(owner, repo, issue)))
+  def getComments(owner: Owner, repo: Repo, issue: Issue): Parallel[GitHub, List[Comment]] =
+    Parallel(GetComments(owner, repo, issue))
 
-  def getComments(owner: Owner, repo: Repo, issue: Issue): GitHubApplicative[List[Comment]] =
-    FreeApplicative.lift(GetComments(owner, repo, issue))
+  def getUserMonad(login: UserLogin): Serial[GitHub, User] =
+    Serial(GetUser(login))
 
-  def getUserMonad(login: UserLogin): GitHubMonadic[User] =
-    Free.liftF(GetUser(login))
+  def getUserM(login: UserLogin): Serial[GitHub, User] =
+    Serial(GetUser(login))
 
-  def getUserM(login: UserLogin): GitHubBoth[User] =
-    Free.liftF[Coproduct[GitHub,GitHubApplicative,?],User](
-      Coproduct.left[GitHubApplicative](GetUser(login)))
+  def getUser(login: UserLogin): Parallel[GitHub, User] =
+    Parallel(GetUser(login))
 
-  def getUser(login: UserLogin): GitHubApplicative[User] =
-    FreeApplicative.lift(GetUser(login))
+  def listIssuesMonad(owner: Owner, repo: Repo): Serial[GitHub, List[Issue]] =
+    Serial(ListIssues(owner,repo))
 
-  def listIssuesMonad(owner: Owner, repo: Repo): GitHubMonadic[List[Issue]] =
-    Free.liftF(ListIssues(owner,repo))
+  def listIssuesM(owner: Owner, repo: Repo): Serial[GitHub, List[Issue]] =
+    Serial(ListIssues(owner,repo))
 
-  def listIssuesM(owner: Owner, repo: Repo): GitHubBoth[List[Issue]] =
-    Free.liftF[Coproduct[GitHub,GitHubApplicative,?],List[Issue]](
-      Coproduct.left[GitHubApplicative](ListIssues(owner,repo)))
+  def listIssues(owner: Owner, repo: Repo): Parallel[GitHub, List[Issue]] =
+    Parallel(ListIssues(owner,repo))
 
-  def listIssues(owner: Owner, repo: Repo): GitHubApplicative[List[Issue]] =
-    FreeApplicative.lift(ListIssues(owner,repo))
-
-  def embed[A](p: GitHubApplicative[A]): GitHubBoth[A] =
-    Free.liftF[Coproduct[GitHub,GitHubApplicative,?],A](Coproduct.right(p))
 }
 
 object GitHubInterp {
@@ -115,34 +107,6 @@ object GitHubInterp {
           case ffa@GetUser(_) => client.fetch(Endpoint(ffa)).map(parseUser)
           case ffa@ListIssues(_,_) => client.fetch(Endpoint(ffa)).map(parseIssue)
           case ffa@GetComment(_,_,_) => client.fetch(Endpoint(ffa)).map(parseSingleComment)
-        }
-      }
-    }
-
-  def stepAp(client: Client): GitHubApplicative ~> Future =
-    new (GitHubApplicative ~> Future) {
-      def apply[A](fa: GitHubApplicative[A]): Future[A] = fa.monad.foldMap(step(client))
-    }
-
-  def stepApPar(client: Client): GitHubApplicative ~> Future =
-    new (GitHubApplicative ~> Future) {
-      def apply[A](fa: GitHubApplicative[A]): Future[A] = fa.foldMap(step(client))
-    }
-
-  def stepApOpt(client: Client): GitHubApplicative ~> Future =
-    new (GitHubApplicative ~> Future) {
-      def apply[A](fa: GitHubApplicative[A]): Future[A] = {
-        val userLogins: List[UserLogin] =
-          fa.analyze(requestedLogins).toList
-
-        val fetched: Future[List[User]] =
-          userLogins.traverseU(u=>getUser(u)).foldMap(step(client))
-
-        val futureMapping: Future[Map[UserLogin,User]] =
-          fetched.map(userLogins.zip(_).toMap)
-
-        futureMapping.flatMap { mapping =>
-          fa.foldMap(prefetchedUsers(mapping)(step(client)))
         }
       }
     }
