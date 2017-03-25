@@ -1,4 +1,4 @@
-package de.codecentric.github
+package tierney.free.github
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer

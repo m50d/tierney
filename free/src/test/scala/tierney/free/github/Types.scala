@@ -1,4 +1,4 @@
-package de.codecentric.github
+package tierney.free.github
 
 import akka.stream.Materializer
 import play.api.libs.json.JsValue

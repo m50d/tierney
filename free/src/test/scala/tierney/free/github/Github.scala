@@ -1,4 +1,4 @@
-package de.codecentric.github
+package tierney.free.github
 
 import play.api.libs.json._
 import cats.Applicative
