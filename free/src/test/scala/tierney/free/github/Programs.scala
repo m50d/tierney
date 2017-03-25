@@ -16,6 +16,7 @@ import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }
 import cats.free.Free
+import cats.free.FreeApplicative
 import tierney.free._
 
 trait ApplicativePrograms {
@@ -84,6 +85,11 @@ trait ApplicativePrograms {
 
 trait Programs {
   import GitHubDsl._
+  
+  // type is Parallel[GH, A]
+  // = ParallelF[Node, GH, A]
+  // = FreeApplicative[Node[GH, ?], A]
+  // = FreeApplicative[FixKK[NodeSerialParallelF, GH, ?], A]
 
   def branching = 
     catsSyntaxIfM[Serial[GitHub, ?]](listIssuesMonad(Owner("foo"),Repo("bar")).map(_.nonEmpty))(
@@ -97,13 +103,13 @@ trait Programs {
   ): Serial[GitHub, List[(Issue,List[(Comment,User)])]] = for {
     issues <- listIssuesMonad(owner,repo)
 
-    issueComments <- issues.traverseU(issue =>
-      getCommentsMonad(owner,repo,issue).map((issue,_)))
+    issueComments <- issues.traverse[Serial[GitHub, ?], (Issue, List[Comment])](issue =>
+      getCommentsMonad(owner,repo,issue).map((issue,_)))(Free.catsFreeMonadForFree[Parallel[GitHub, ?]])
 
-    users <- issueComments.traverseU { case (issue,comments) =>
-      comments.traverseU(comment =>
-        getUserMonad(comment.user).map((comment,_))).map((issue,_))
-    }
+    users <- issueComments.traverse[Serial[GitHub, ?], (Issue, List[(Comment, User)])] { case (issue,comments) =>
+      comments.traverse[Serial[GitHub, ?], (Comment, User)](comment =>
+        getUserMonad(comment.user).map((comment,_)))(Free.catsFreeMonadForFree[Parallel[GitHub, ?]]).map((issue,_))
+    }(Free.catsFreeMonadForFree[Parallel[GitHub, ?]])
   } yield users
 
   def allUsersM(owner: Owner, repo: Repo):
@@ -112,12 +118,12 @@ trait Programs {
     issues <- listIssuesM(owner,repo)
 
         issueComments <- 
-          issues.traverseU(issue =>
+          issues.traverse[Parallel[GitHub, ?], (Issue, List[Comment])](issue =>
             getComments(owner,repo,issue).map((issue,_))).serial
 
         users <- 
-          issueComments.traverseU { case (issue,comments) =>
-            comments.traverseU(comment =>
+          issueComments.traverse[Parallel[GitHub, ?], (Issue, List[(Comment, User)])] { case (issue,comments) =>
+            comments.traverse[Parallel[GitHub, ?], (Comment, User)](comment =>
               getUser(comment.user).map((comment,_))).map((issue,_))
           }.serial
   } yield users
@@ -141,7 +147,7 @@ trait Programs {
   } yield users
 
   def getUsers(issueComments: List[List[Comment]]): Parallel[GitHub, List[List[User]]] =
-    issueComments.traverseU(comments =>
+    issueComments.traverse[Parallel[GitHub, ?], List[User]](comments =>
       comments.traverseU(comment =>
         getUser(comment.user)))
 }
