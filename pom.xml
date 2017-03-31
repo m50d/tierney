@@ -104,6 +104,7 @@
 						<arg>-Ywarn-unused-import</arg>
 						<arg>-Yno-predef</arg>
 						<arg>-unchecked</arg>
+						<arg>-Ypartial-unification</arg>
 					</args>
 					<jvmArgs>
 						<jvmArg>-Dkp:genAsciiNames=true</jvmArg>
