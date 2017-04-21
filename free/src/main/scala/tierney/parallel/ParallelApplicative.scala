@@ -3,7 +3,7 @@ package tierney.parallel
 import cats.Applicative
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import monix.async.{ Task ⇒ MonixTask }
+import monix.eval.{ Task ⇒ MonixTask }
 import fs2.{ Task ⇒ Fs2Task }
 import fs2.Strategy
 
@@ -25,7 +25,7 @@ object ParallelApplicative {
   implicit def parallelApplicativeMonixTask: ParallelApplicative[MonixTask] = new ParallelApplicative[MonixTask] {
     override def pure[A](a: A) = MonixTask.now(a)
     override def ap[A, B](ff: MonixTask[A ⇒ B])(fa: MonixTask[A]) =
-      MonixTask.map2(ff, fa)(_(_))
+      MonixTask.mapBoth(ff, fa)(_(_))
   }
   implicit def parallelApplicativeFs2Task(implicit s: Strategy): ParallelApplicative[Fs2Task] = new ParallelApplicative[Fs2Task] {
     override def pure[A](a: A) = Fs2Task.now(a)
