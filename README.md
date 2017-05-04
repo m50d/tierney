@@ -18,7 +18,7 @@ all of your operations.
     <dependency>
 		<groupId>com.github.m50d</groupId>
 		<artifactId>tierney-free</artifactId>
-		<version>0.2</version>
+		<version>0.3</version>
 	</dependency>
 
 ### Direct use with `Future` or `Task`
@@ -43,8 +43,7 @@ TODO
 ### Features required for 1.0
 
  * Write examples in the this document
-  * I want to crib them from https://github.com/markus1189/flatmap-oslo-2016/tree/master/src/main/scala/de/codecentric/github
-  but have to be able to email markus1189 first
+  * TC unification isn't working properly so far - see tests
  
 ### Other desirable features
 
