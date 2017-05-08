@@ -22,7 +22,7 @@ import tierney.free._
 trait ApplicativePrograms {
   import GitHubDsl._
   def getUsers(logins: List[UserLogin]): Parallel[GitHub, List[User]] =
-    logins.traverse(getUser)
+    logins.traverse[Parallel[GitHub, ?], User](getUser)
 
 //  def logins: Parallel[GitHub, List[User]] =
 //    List(UserLogin("markus1189"), UserLogin("..."), ???).
