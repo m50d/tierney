@@ -24,20 +24,20 @@ trait ApplicativePrograms {
   def getUsers(logins: List[UserLogin]): Parallel[GitHub, List[User]] =
     logins.traverse(getUser)
 
-  def logins: Parallel[GitHub, List[User]] =
-    List(UserLogin("markus1189"), UserLogin("..."), ???).
-      traverse(login ⇒ getUser(login))
-
-  val issuesConcat: Parallel[GitHub, List[Issue]] =
-    (listIssues(Owner("scala"), Repo("scala-dev"))
-      |@|
-      listIssues(Owner("scala"), Repo("slip"))).map(_ ++ _)
-
-  val scalaIssues: Parallel[GitHub, List[Issue]] =
-    List("scala", "scala-dev", "slip", "scala-lang").
-      traverse(repo ⇒
-        listIssues(Owner("scala"), Repo(repo))).
-      map(_.flatten)
+//  def logins: Parallel[GitHub, List[User]] =
+//    List(UserLogin("markus1189"), UserLogin("..."), ???).
+//      traverse(login ⇒ getUser(login))
+//
+//  val issuesConcat: Parallel[GitHub, List[Issue]] =
+//    (listIssues(Owner("scala"), Repo("scala-dev"))
+//      |@|
+//      listIssues(Owner("scala"), Repo("slip"))).map(_ ++ _)
+//
+//  val scalaIssues: Parallel[GitHub, List[Issue]] =
+//    List("scala", "scala-dev", "slip", "scala-lang").
+//      traverse(repo ⇒
+//        listIssues(Owner("scala"), Repo(repo))).
+//      map(_.flatten)
 
   //  def extractLogins(p: GitHubApplicative[_]): Set[UserLogin] = {
   //    import GitHubInterp._
@@ -89,60 +89,60 @@ trait Programs {
   // = FreeApplicative[Node[GH, ?], A]
   // = FreeApplicative[FixKK[NodeSerialParallelF, GH, ?], A]
 
-  def branching =
-    listIssuesMonad(Owner("foo"), Repo("bar")).map(_.nonEmpty).ifM(
-      listIssuesMonad(Owner("foo"), Repo("baz")) //if true
-      , listIssuesMonad(Owner("foo"), Repo("qux"))) //if false
+//  def branching =
+//    listIssuesMonad(Owner("foo"), Repo("bar")).map(_.nonEmpty).ifM(
+//      listIssuesMonad(Owner("foo"), Repo("baz")) //if true
+//      , listIssuesMonad(Owner("foo"), Repo("qux"))) //if false
 
-  def allUsers(
-    owner: Owner,
-    repo: Repo): Serial[GitHub, List[(Issue, List[(Comment, User)])]] = for {
-    issues ← listIssuesMonad(owner, repo)
+//  def allUsers(
+//    owner: Owner,
+//    repo: Repo): Serial[GitHub, List[(Issue, List[(Comment, User)])]] = for {
+//    issues ← listIssuesMonad(owner, repo)
+//
+//    issueComments ← issues.traverse(issue ⇒
+//      getCommentsMonad(owner, repo, issue).map((issue, _)))
+//
+//    users ← issueComments.traverse {
+//      case (issue, comments) ⇒
+//        comments.traverse(comment ⇒
+//          getUserMonad(comment.user).map((comment, _))).map((issue, _))
+//    }
+//  } yield users
+//
+//  def allUsersM(owner: Owner, repo: Repo): Serial[GitHub, List[(Issue, List[(Comment, User)])]] = for {
+//
+//    issues ← listIssuesM(owner, repo)
+//
+//    issueComments ← issues.traverse(issue ⇒
+//      getComments(owner, repo, issue).map((issue, _))).serial
+//
+//    users ← issueComments.traverse {
+//      case (issue, comments) ⇒
+//        comments.traverse(comment ⇒
+//          getUser(comment.user).map((comment, _))).map((issue, _))
+//    }.serial
+//  } yield users
 
-    issueComments ← issues.traverse(issue ⇒
-      getCommentsMonad(owner, repo, issue).map((issue, _)))
+//  def userNamesFromIssueComments(
+//    owner: Owner,
+//    repo: Repo,
+//    issue: Issue): Serial[GitHub, List[User]] = for {
+//    comments ← getCommentsM(owner, repo, issue)
+//    users ← comments.traverse(comment ⇒ getUser(comment.user)).serial
+//  } yield users
 
-    users ← issueComments.traverse {
-      case (issue, comments) ⇒
-        comments.traverse(comment ⇒
-          getUserMonad(comment.user).map((comment, _))).map((issue, _))
-    }
-  } yield users
+//  def userNamesFromAllIssuesComments(
+//    owner: Owner,
+//    repo: Repo): Serial[GitHub, List[List[User]]] = for {
+//    issues ← listIssuesM(owner, repo)
+//    issueComments ← issues.traverse(issue ⇒ getComments(owner, repo, issue)).serial
+//    users ← getUsers(issueComments).serial
+//  } yield users
 
-  def allUsersM(owner: Owner, repo: Repo): Serial[GitHub, List[(Issue, List[(Comment, User)])]] = for {
-
-    issues ← listIssuesM(owner, repo)
-
-    issueComments ← issues.traverse(issue ⇒
-      getComments(owner, repo, issue).map((issue, _))).serial
-
-    users ← issueComments.traverse {
-      case (issue, comments) ⇒
-        comments.traverse(comment ⇒
-          getUser(comment.user).map((comment, _))).map((issue, _))
-    }.serial
-  } yield users
-
-  def userNamesFromIssueComments(
-    owner: Owner,
-    repo: Repo,
-    issue: Issue): Serial[GitHub, List[User]] = for {
-    comments ← getCommentsM(owner, repo, issue)
-    users ← comments.traverse(comment ⇒ getUser(comment.user)).serial
-  } yield users
-
-  def userNamesFromAllIssuesComments(
-    owner: Owner,
-    repo: Repo): Serial[GitHub, List[List[User]]] = for {
-    issues ← listIssuesM(owner, repo)
-    issueComments ← issues.traverse(issue ⇒ getComments(owner, repo, issue)).serial
-    users ← getUsers(issueComments).serial
-  } yield users
-
-  def getUsers(issueComments: List[List[Comment]]): Parallel[GitHub, List[List[User]]] =
-    issueComments.traverse(comments ⇒
-      comments.traverse(comment ⇒
-        getUser(comment.user)))
+//  def getUsers(issueComments: List[List[Comment]]): Parallel[GitHub, List[List[User]]] =
+//    issueComments.traverse(comments ⇒
+//      comments.traverse(comment ⇒
+//        getUser(comment.user)))
 }
 
 object Webclient {
