@@ -103,8 +103,8 @@ trait Programs {
   ): Serial[GitHub, List[(Issue,List[(Comment,User)])]] = for {
     issues <- listIssuesMonad(owner,repo)
 
-    issueComments <- issues.traverse[Serial[GitHub, ?], (Issue, List[Comment])](issue =>
-      getCommentsMonad(owner,repo,issue).map((issue,_)))(Free.catsFreeMonadForFree[Parallel[GitHub, ?]])
+    issueComments <- issues.traverse(issue =>
+      getCommentsMonad(owner,repo,issue).map((issue,_)))
 
     users <- issueComments.traverse[Serial[GitHub, ?], (Issue, List[(Comment, User)])] { case (issue,comments) =>
       comments.traverse[Serial[GitHub, ?], (Comment, User)](comment =>
