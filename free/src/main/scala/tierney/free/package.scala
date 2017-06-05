@@ -1,6 +1,6 @@
 package tierney
 
-import cats.data.Coproduct
+import cats.data.EitherK
 import cats.free.FreeApplicative
 import cats.free.Free
 import tierney.core._
@@ -9,17 +9,17 @@ import tierney.free.FreeSupport
 import cats.Applicative
 import cats.Monad
 
-package object free extends CoproductSupport with FreeSupport with FreeApplicativeSupport {
+package object free extends EitherKSupport with FreeSupport with FreeApplicativeSupport {
   /** Either an immediate command F or a recursive S structure
    */
-  type NodeF[S[_[_], _], F[_], A] = Coproduct[F, S[F, ?], A]
+  type NodeF[S[_[_], _], F[_], A] = EitherK[F, S[F, ?], A]
   object NodeF {
     implicit val functorKKNodeF: FunctorKK[NodeF] = new FunctorKK[NodeF] {
       override def map[S[_[_], _], T[_[_], _], F[_]](f: S[F, ?] ~> T[F, ?]) =
         rightMap[F, S[F, ?], T[F, ?]](f)
     }
-    def left[S[_[_], _], F[_], A](f: F[A]): NodeF[S, F, A] = Coproduct.leftc[F, S[F, ?], A](f)
-    def right[S[_[_], _], F[_], A](s: S[F, A]): NodeF[S, F, A] = Coproduct.rightc[F, S[F, ?], A](s)
+    def left[S[_[_], _], F[_], A](f: F[A]): NodeF[S, F, A] = EitherK.leftc[F, S[F, ?], A](f)
+    def right[S[_[_], _], F[_], A](s: S[F, A]): NodeF[S, F, A] = EitherK.rightc[F, S[F, ?], A](s)
   }
   
   /** A fan of S constructs to execute in parallel
@@ -77,6 +77,7 @@ package object free extends CoproductSupport with FreeSupport with FreeApplicati
         (new LazyFunctionK[UNode[F, ?], UNode[G, ?]](functorKUNode.map(f))) andThen[Node[G, ?]]
       fixKK[NodeSerialParallelF, G]
   }
+//  implicit def unapplyNode[TC[_[_]], MA](implicit )
   final implicit class NodeOps[F[_], A](override val node: Node[F, A]) extends AnyVal with TierneyFree[F, A]
   
   /** A fan of nodes to execute in parallel

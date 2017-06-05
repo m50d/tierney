@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import cats._
 import cats.`~>`
-import cats.data.Coproduct
+import cats.data.EitherK
 import cats.instances.future._
 import cats.instances.list._
 import cats.instances.set._
@@ -23,11 +23,11 @@ trait ApplicativePrograms {
   import GitHubDsl._
   def getUsers(logins: List[UserLogin]
   ): Parallel[GitHub, List[User]] =
-    logins.traverseU(getUser)
+    logins.traverse(getUser)
 
   def logins: Parallel[GitHub, List[User]] =
     List(UserLogin("markus1189"), UserLogin("..."), ???).
-      traverseU(login => getUser(login))
+      traverse(login => getUser(login))
 
   val issuesConcat: Parallel[GitHub, List[Issue]] =
     (listIssues(Owner("scala"),Repo("scala-dev"))
@@ -37,7 +37,7 @@ trait ApplicativePrograms {
 
   val scalaIssues: Parallel[GitHub, List[Issue]] =
     List("scala","scala-dev","slip","scala-lang").
-      traverseU(repo =>
+      traverse(repo =>
         listIssues(Owner("scala"),Repo(repo))).
       map(_.flatten)
 
@@ -134,7 +134,7 @@ trait Programs {
     issue: Issue
   ): Serial[GitHub, List[User]] = for {
     comments <- getCommentsM(owner, repo, issue)
-    users <- comments.traverseU(comment => getUser(comment.user)).serial
+    users <- comments.traverse(comment => getUser(comment.user)).serial
   } yield users
 
   def userNamesFromAllIssuesComments(
@@ -142,13 +142,13 @@ trait Programs {
     repo: Repo
   ): Serial[GitHub, List[List[User]]] = for {
     issues <- listIssuesM(owner,repo)
-    issueComments <- issues.traverseU(issue => getComments(owner,repo,issue)).serial
+    issueComments <- issues.traverse(issue => getComments(owner,repo,issue)).serial
     users <- getUsers(issueComments).serial
   } yield users
 
   def getUsers(issueComments: List[List[Comment]]): Parallel[GitHub, List[List[User]]] =
     issueComments.traverse[Parallel[GitHub, ?], List[User]](comments =>
-      comments.traverseU(comment =>
+      comments.traverse(comment =>
         getUser(comment.user)))
 }
 
@@ -204,7 +204,7 @@ object Webclient {
 //    withClient { client =>
 //
 //      if (doApplicative) {
-//        val parallel: Coproduct[GitHub,GitHubApplicative,?] ~> Future = {
+//        val parallel: EitherK[GitHub,GitHubApplicative,?] ~> Future = {
 //          import GitHubInterp._
 //          step(client).or[GitHubApplicative](stepApPar(client))
 //        }
@@ -218,7 +218,7 @@ object Webclient {
 //      }
 //
 //      if (doMonadic) {
-//        val sequential: Coproduct[GitHub,GitHubApplicative,?] ~> Future = {
+//        val sequential: EitherK[GitHub,GitHubApplicative,?] ~> Future = {
 //          import GitHubInterp._
 //          step(client).or[GitHubApplicative](stepAp(client))
 //        }
@@ -230,7 +230,7 @@ object Webclient {
 //      }
 //
 //      if (doOptimized) {
-//        val optimized: Coproduct[GitHub,GitHubApplicative,?] ~> Future = {
+//        val optimized: EitherK[GitHub,GitHubApplicative,?] ~> Future = {
 //          import GitHubInterp._
 //          step(client).or[GitHubApplicative](stepApOpt(client))
 //
