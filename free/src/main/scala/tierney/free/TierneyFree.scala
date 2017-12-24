@@ -32,6 +32,9 @@ trait TierneyFree[F[_], A] extends Any {
   final def runParallel(implicit mo: Monad[F], pa: ParallelApplicative[F]): F[A] = run(mo, pa)
   final def runParallel[G[_]](f: F ~> G)(implicit mo: Monad[G], pa: ParallelApplicative[G]): G[A] = compile(f).runParallel
 
+  /**
+   * Return as much as possible of a FreeApplicative#analyze, "up to the first flatMap" 
+   */
   final def shallowAnalyze[M](f: F ~> Lambda[B => M])(implicit m: Monoid[M]) =
     node.cata[Lambda[(G[_], B) => M]](Lambda[NodeSerialParallelF[Lambda[(G[_], B) => M], F, ?] ~> Lambda[B => M]](
       _.fold[Lambda[A => M]](f, Lambda[SerialParallelF[Lambda[(G[_], B) => M], F, ?] ~> Lambda[B => M]](
