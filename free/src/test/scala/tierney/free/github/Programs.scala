@@ -1,29 +1,28 @@
 package tierney.free.github
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import cats._
-import cats.`~>`
-import cats.data.EitherK
-import cats.instances.future._
+//import akka.actor.ActorSystem
+//import akka.stream.ActorMaterializer
+//import cats.{Parallel => _, _}
+//import cats.`~>`
+//import cats.data.EitherK
+//import cats.instances.future._
 import cats.instances.list._
-import cats.instances.set._
-import cats.syntax.cartesian._
-import cats.syntax.flatMap._
+//import cats.instances.set._
+//import cats.syntax.cartesian._
+//import cats.syntax.flatMap._
 import cats.syntax.traverse._
-import scala.concurrent.Future
-import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
-import cats.free.Free
-import cats.free.FreeApplicative
-import tierney.free._
+//import scala.concurrent.Future
+//import scala.concurrent.duration.FiniteDuration
+//import scala.concurrent.duration._
+//import scala.concurrent.{ Await, Future }
+//import cats.free.Free
+//import cats.free.FreeApplicative
+import tierney.free.Parallel
 
 trait ApplicativePrograms {
   import GitHubDsl._
-//  def getUsers(logins: List[UserLogin]
-//  ): Parallel[GitHub, List[User]] =
-//    logins.traverse(getUser)
+  def getUsers(logins: List[UserLogin]): Parallel[GitHub, List[User]] =
+    logins.traverse(getUser)
 //
 //  def logins: Parallel[GitHub, List[User]] =
 //    List(UserLogin("markus1189"), UserLogin("..."), ???).

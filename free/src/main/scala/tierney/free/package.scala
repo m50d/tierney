@@ -77,7 +77,6 @@ package object free extends EitherKSupport with FreeSupport with FreeApplicative
         (new LazyFunctionK[UNode[F, ?], UNode[G, ?]](functorKUNode.map(f))) andThen[Node[G, ?]]
       fixKK[NodeSerialParallelF, G]
   }
-//  implicit def unapplyNode[TC[_[_]], MA](implicit )
   final implicit class NodeOps[F[_], A](override val node: Node[F, A]) extends AnyVal with TierneyFree[F, A]
   
   /** A fan of nodes to execute in parallel
@@ -86,11 +85,11 @@ package object free extends EitherKSupport with FreeSupport with FreeApplicative
   object Parallel {
     def apply[F[_], A](command: F[A]): Parallel[F, A] = Node(command).parallel
   }
-  implicit def applicativeParallel[F[_]]: Applicative[Parallel[F, ?]] = new Applicative[Parallel[F, ?]] {
-    override def pure[A](a: A) = FreeApplicative.pure[Node[F, ?], A](a)
-    override def ap[A, B](ff: Parallel[F, A => B])(fa: Parallel[F, A]) =
-      fa.ap(ff)
-  }
+//  implicit def applicativeParallel[F[_]]: Applicative[Parallel[F, ?]] = new Applicative[Parallel[F, ?]] {
+//    override def pure[A](a: A) = FreeApplicative.pure[Node[F, ?], A](a)
+//    override def ap[A, B](ff: Parallel[F, A => B])(fa: Parallel[F, A]) =
+//      fa.ap(ff)
+//  }
   implicit def functorKParallel: FunctorK[Parallel] = new FunctorK[Parallel] {
     override def map[F[_], G[_]](f: F ~> G) =
       compile_[Node[F, ?], Node[G, ?]](functorKNode.map(f))
