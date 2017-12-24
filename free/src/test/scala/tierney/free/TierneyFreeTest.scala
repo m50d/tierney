@@ -64,7 +64,7 @@ class TierneyFreeTest {
     } yield {}
 
   def parallelRepeat(command: Parallel[MyCommand, Unit]): Parallel[MyCommand, Unit] =
-    (command |@| command |@| command) map {
+    (catsSyntaxCartesian[Parallel[MyCommand, ?], Unit](command) |@| command |@| command) map {
       (_, _, _) ⇒
     }
 

@@ -21,7 +21,7 @@ class ParallelApplicativeTest {
     implicit val strategy = Strategy.fromCachedDaemonPool("ParallelApplicativeTest")
     
     val sleep = Parallel(Task(Thread.sleep(1000L)))
-    val command = (sleep |@| sleep |@| sleep).map {(_, _, _) => }
+    val command = (catsSyntaxCartesian[Parallel[Task, ?], Unit](sleep) |@| sleep |@| sleep).map {(_, _, _) => }
     
     val timeSerial = timeOf(command.runSerialOrUnprincipled)
     assertTrue(timeSerial > 3000)
