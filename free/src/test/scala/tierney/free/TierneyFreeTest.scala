@@ -1,6 +1,7 @@
 package tierney.free
 
 import org.junit.Test
+import cats.instances.int._
 import cats.syntax.apply._
 import cats.~>
 import cats.Id
@@ -85,4 +86,15 @@ class TierneyFreeTest {
     assertEquals(CostEstimate(81, {}), interleavedCommand.runSerialOrUnprincipled(costInterpreter))
   }
 
+  val countCommands = Lambda[MyCommand ~> Lambda[A => Int]](_ => 1)
+  
+  @Test def shallowAnalyze(): Unit = {
+    assertEquals(1, serialRepeat(Serial(Delay())).shallowAnalyze(countCommands))
+    assertEquals(3, parallelRepeat(Parallel(Delay())).shallowAnalyze(countCommands))
+  }
+  
+  @Test def shallowAnalyzeDeeplyNested(): Unit = {
+    assertEquals(3, parallelRepeat(
+        Parallel(Delay())).node.parallel.serial.node.parallel.serial.node.parallel.serial.shallowAnalyze(countCommands))
+  }
 }
