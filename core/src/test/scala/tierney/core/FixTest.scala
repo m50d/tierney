@@ -2,7 +2,6 @@ package tierney.core
 
 import cats.derived._
 import cats.derived.functor._
-import cats.derived.functor.legacy._
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import cats.Functor

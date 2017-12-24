@@ -9,7 +9,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scala.version>2.12.4</scala.version>
 		<scala.suffix>_2.12</scala.suffix>
-		<cats.version>0.9.1-SNAPSHOT</cats.version>
+		<cats.version>1.0.0-RC2</cats.version>
 	</properties>
 	<profiles>
 		<profile>
@@ -243,6 +243,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.typelevel</groupId>
+				<artifactId>cats-free${scala.suffix}</artifactId>
+				<version>${cats.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
 				<artifactId>cats-jvm${scala.suffix}</artifactId>
 				<version>${cats.version}</version>
 			</dependency>
@@ -265,6 +270,11 @@
 				<groupId>org.typelevel</groupId>
 				<artifactId>cats-macros${scala.suffix}</artifactId>
 				<version>${cats.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>machinist_2.12</artifactId>
+				<version>0.6.2</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
