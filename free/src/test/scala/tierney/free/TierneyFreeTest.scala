@@ -1,17 +1,14 @@
 package tierney.free
 
 import org.junit.Test
-import cats.syntax.functor._
-import cats.syntax.flatMap._
+import cats.instances.int._
 import cats.syntax.apply._
-import fs2.Task
 import cats.~>
 import cats.Id
 import org.junit.Assert.assertEquals
 import tierney.parallel.ParallelApplicative
 import cats.Monad
 import scala.annotation.tailrec
-import org.junit.Ignore
 
 sealed trait MyCommand[A] {
   def value: A
@@ -89,4 +86,15 @@ class TierneyFreeTest {
     assertEquals(CostEstimate(81, {}), interleavedCommand.runSerialOrUnprincipled(costInterpreter))
   }
 
+  val countCommands = Lambda[MyCommand ~> Lambda[A => Int]](_ => 1)
+  
+  @Test def shallowAnalyze(): Unit = {
+    assertEquals(1, serialRepeat(Serial(Delay())).shallowAnalyze(countCommands))
+    assertEquals(3, parallelRepeat(Parallel(Delay())).shallowAnalyze(countCommands))
+  }
+  
+  @Test def shallowAnalyzeDeeplyNested(): Unit = {
+    assertEquals(3, parallelRepeat(
+        Parallel(Delay())).node.parallel.serial.node.parallel.serial.node.parallel.serial.shallowAnalyze(countCommands))
+  }
 }

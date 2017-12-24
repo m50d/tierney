@@ -5,9 +5,6 @@ import cats.free.FreeApplicative
 import cats.free.Free
 import tierney.core._
 import cats.~>
-import tierney.free.FreeSupport
-import cats.Applicative
-import cats.Monad
 
 package object free extends EitherKSupport with FreeSupport with FreeApplicativeSupport {
   /** Either an immediate command F or a recursive S structure
@@ -41,14 +38,20 @@ package object free extends EitherKSupport with FreeSupport with FreeApplicative
     }
   }
   
+  /**
+   * A chain of fans of S constructs
+   */
+  type SerialParallelF[S[_[_], _], F[_], A] =
+    SerialF[Lambda[(G[_], B) => ParallelF[Lambda[(H[_], C) => S[H, C]], G, B]], F, A]
+  implicit val functorKKSerialParallelF : FunctorKK[SerialParallelF] =
+      ParallelF.functorKKParallelF andThen SerialF.functorKKSerialF
+  
   /** Either an immediate command F or a chain of fans of S constructs
    */
   type NodeSerialParallelF[S[_[_], _], F[_], A] = 
-    NodeF[Lambda[(G[_], B) => SerialF[Lambda[(H[_], C) => ParallelF[Lambda[(I[_], D) => S[I, D]], H, C]], G, B]], F, A]
-  object NodeSerialParallelF {
+    NodeF[Lambda[(G[_], B) => SerialParallelF[Lambda[(H[_], C) => S[H, C]], G, B]], F, A]
     implicit val functorKKNodeSerialParallelF : FunctorKK[NodeSerialParallelF] =
-      ParallelF.functorKKParallelF andThen SerialF.functorKKSerialF andThen NodeF.functorKKNodeF
-  }
+      functorKKSerialParallelF andThen NodeF.functorKKNodeF
   
   /** "Unfixed" variant of node - logically isomorphic but a different representation.
    * The same type as Node_[Node, F, A]
@@ -77,7 +80,6 @@ package object free extends EitherKSupport with FreeSupport with FreeApplicative
         (new LazyFunctionK[UNode[F, ?], UNode[G, ?]](functorKUNode.map(f))) andThen[Node[G, ?]]
       fixKK[NodeSerialParallelF, G]
   }
-//  implicit def unapplyNode[TC[_[_]], MA](implicit )
   final implicit class NodeOps[F[_], A](override val node: Node[F, A]) extends AnyVal with TierneyFree[F, A]
   
   /** A fan of nodes to execute in parallel
@@ -85,11 +87,6 @@ package object free extends EitherKSupport with FreeSupport with FreeApplicative
   type Parallel[F[_], A] = ParallelF[Node, F, A]
   object Parallel {
     def apply[F[_], A](command: F[A]): Parallel[F, A] = Node(command).parallel
-  }
-  implicit def applicativeParallel[F[_]]: Applicative[Parallel[F, ?]] = new Applicative[Parallel[F, ?]] {
-    override def pure[A](a: A) = FreeApplicative.pure[Node[F, ?], A](a)
-    override def ap[A, B](ff: Parallel[F, A => B])(fa: Parallel[F, A]) =
-      fa.ap(ff)
   }
   implicit def functorKParallel: FunctorK[Parallel] = new FunctorK[Parallel] {
     override def map[F[_], G[_]](f: F ~> G) =

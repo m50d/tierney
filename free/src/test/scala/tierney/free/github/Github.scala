@@ -3,13 +3,6 @@ package tierney.free.github
 import play.api.libs.json._
 import cats.Applicative
 import cats.`~>`
-import cats.data.EitherK
-import cats.free.Free
-import cats.free.FreeApplicative
-import cats.instances.future._
-import cats.instances.list._
-import cats.instances.set._
-import cats.syntax.traverse._
 import play.api.libs.json._
 import scala.concurrent.Future
 import tierney.free._
@@ -96,7 +89,6 @@ object GitHubDsl extends Serializable {
 
 object GitHubInterp {
   import scala.concurrent.ExecutionContext.Implicits.global // don't do this
-  import GitHubDsl._
 
   def step(client: Client): GitHub ~> Future =
     new (GitHub ~> Future) {
