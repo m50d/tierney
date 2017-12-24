@@ -42,8 +42,7 @@ TODO
 
 ### Features required for 1.0
 
- * Write examples in the this document
-  * TC unification isn't working properly so far - see tests
+ * Write examples in this document
  
 ### Other desirable features
 
