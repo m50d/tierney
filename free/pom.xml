@@ -136,13 +136,8 @@
 		</dependency>
 		<dependency>
 			<groupId>co.fs2</groupId>
-			<artifactId>fs2-core${scala.suffix}</artifactId>
-			<version>0.9.2</version>
-		</dependency>
-		<dependency>
-			<groupId>co.fs2</groupId>
 			<artifactId>fs2-cats${scala.suffix}</artifactId>
-			<version>0.3.0</version>
+			<version>0.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.typesafe.play</groupId>

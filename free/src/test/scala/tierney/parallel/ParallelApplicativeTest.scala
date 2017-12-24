@@ -4,7 +4,7 @@ import org.junit.Test
 import fs2.Task
 import fs2.Strategy
 import fs2.interop.cats._
-import cats.syntax.cartesian._
+import cats.syntax.apply._
 import tierney.free._
 import org.junit.Assert.{assertTrue, assertFalse}
 import scala.concurrent.Await
@@ -21,7 +21,7 @@ class ParallelApplicativeTest {
     implicit val strategy = Strategy.fromCachedDaemonPool("ParallelApplicativeTest")
     
     val sleep = Parallel(Task(Thread.sleep(1000L)))
-    val command = (sleep |@| sleep |@| sleep).map {(_, _, _) => }
+    val command = catsSyntaxTuple3Semigroupal[Parallel[Task, ?], Unit, Unit, Unit]((sleep, sleep, sleep)).mapN {(_, _, _) => }
     
     val timeSerial = timeOf(command.runSerialOrUnprincipled)
     assertTrue(timeSerial > 3000)

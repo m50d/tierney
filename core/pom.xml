@@ -18,7 +18,7 @@
 						<configuration>
 							<!-- Scaladoc interacts poorly with kind-projector -->
 							<excludes>
-								<exclude>tierney/core/CoproductSupport.scala</exclude>
+								<exclude>tierney/core/EitherKSupport.scala</exclude>
 								<exclude>tierney/core/FunctionKK.scala</exclude>
 								<exclude>tierney/core/FunctorKK.scala</exclude>
 								<exclude>tierney/core/FunctorK.scala</exclude>
@@ -34,13 +34,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.typelevel</groupId>
-			<artifactId>cats-core${scala.suffix}</artifactId>
-			<version>0.9.0</version>
+			<artifactId>cats-free${scala.suffix}</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.typelevel</groupId>
 			<artifactId>kittens${scala.suffix}</artifactId>
-			<version>1.0.0-M9</version>
+			<version>1.0.0-RC1</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

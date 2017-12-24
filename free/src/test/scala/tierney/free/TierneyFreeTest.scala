@@ -3,7 +3,7 @@ package tierney.free
 import org.junit.Test
 import cats.syntax.functor._
 import cats.syntax.flatMap._
-import cats.syntax.cartesian._
+import cats.syntax.apply._
 import fs2.Task
 import cats.~>
 import cats.Id
@@ -64,7 +64,7 @@ class TierneyFreeTest {
     } yield {}
 
   def parallelRepeat(command: Parallel[MyCommand, Unit]): Parallel[MyCommand, Unit] =
-    (command |@| command |@| command) map {
+    catsSyntaxTuple3Semigroupal[Parallel[MyCommand, ?], Unit, Unit, Unit]((command, command, command)) mapN {
       (_, _, _) ⇒
     }
 

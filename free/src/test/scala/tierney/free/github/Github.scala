@@ -3,7 +3,7 @@ package tierney.free.github
 import play.api.libs.json._
 import cats.Applicative
 import cats.`~>`
-import cats.data.Coproduct
+import cats.data.EitherK
 import cats.free.Free
 import cats.free.FreeApplicative
 import cats.instances.future._

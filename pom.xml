@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.m50d</groupId>
 	<artifactId>tierney-aggregator</artifactId>
@@ -6,8 +7,9 @@
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<scala.version>2.12.1</scala.version>
+		<scala.version>2.12.4</scala.version>
 		<scala.suffix>_2.12</scala.suffix>
+		<cats.version>1.0.0-RC2</cats.version>
 	</properties>
 	<profiles>
 		<profile>
@@ -233,6 +235,46 @@
 				<groupId>org.scala-lang</groupId>
 				<artifactId>scala-reflect</artifactId>
 				<version>${scala.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>cats-core${scala.suffix}</artifactId>
+				<version>${cats.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>cats-free${scala.suffix}</artifactId>
+				<version>${cats.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>cats-jvm${scala.suffix}</artifactId>
+				<version>${cats.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>cats-kernel${scala.suffix}</artifactId>
+				<version>${cats.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>cats-kernel-laws${scala.suffix}</artifactId>
+				<version>${cats.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>cats-laws${scala.suffix}</artifactId>
+				<version>${cats.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>cats-macros${scala.suffix}</artifactId>
+				<version>${cats.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.typelevel</groupId>
+				<artifactId>machinist_2.12</artifactId>
+				<version>0.6.2</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
