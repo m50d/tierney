@@ -44,7 +44,7 @@ TODO
 
  * Write examples in this document
  
-### Other desirable features
+### Desirable features
 
  * Replace current basic performance test of `ParallelApplicative` with something more robust
  * Add more `ParallelApplicative` implementations e.g. scalaz-concurrent `Task`
