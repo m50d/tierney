@@ -5,7 +5,6 @@ import cats.free.FreeApplicative
 import cats.free.Free
 import tierney.core._
 import cats.~>
-import cats.kernel.Monoid
 
 package object free extends EitherKSupport with FreeSupport with FreeApplicativeSupport {
   /** Either an immediate command F or a recursive S structure
@@ -39,14 +38,20 @@ package object free extends EitherKSupport with FreeSupport with FreeApplicative
     }
   }
   
+  /**
+   * A chain of fans of S constructs
+   */
+  type SerialParallelF[S[_[_], _], F[_], A] =
+    SerialF[Lambda[(G[_], B) => ParallelF[Lambda[(H[_], C) => S[H, C]], G, B]], F, A]
+  implicit val functorKKSerialParallelF : FunctorKK[SerialParallelF] =
+      ParallelF.functorKKParallelF andThen SerialF.functorKKSerialF
+  
   /** Either an immediate command F or a chain of fans of S constructs
    */
   type NodeSerialParallelF[S[_[_], _], F[_], A] = 
-    NodeF[Lambda[(G[_], B) => SerialF[Lambda[(H[_], C) => ParallelF[Lambda[(I[_], D) => S[I, D]], H, C]], G, B]], F, A]
-  object NodeSerialParallelF {
+    NodeF[Lambda[(G[_], B) => SerialParallelF[Lambda[(H[_], C) => S[H, C]], G, B]], F, A]
     implicit val functorKKNodeSerialParallelF : FunctorKK[NodeSerialParallelF] =
-      ParallelF.functorKKParallelF andThen SerialF.functorKKSerialF andThen NodeF.functorKKNodeF
-  }
+      functorKKSerialParallelF andThen NodeF.functorKKNodeF
   
   /** "Unfixed" variant of node - logically isomorphic but a different representation.
    * The same type as Node_[Node, F, A]
@@ -87,11 +92,7 @@ package object free extends EitherKSupport with FreeSupport with FreeApplicative
     override def map[F[_], G[_]](f: F ~> G) =
       compile_[Node[F, ?], Node[G, ?]](functorKNode.map(f))
   }
-  final implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A] {
-    def shallowAnalyze[M](f: F ~> Lambda[B => M])(implicit m: Monoid[M]) =
-      parallel.analyze(Lambda[Node[F, ?] ~> Lambda[B => M]](
-          _.unfix.fold[Lambda[A => M]](f, Lambda[Serial[F, ?] ~> Lambda[B => M]](_ => m.empty))))
-  }
+  final implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A]
   
   /** A chain of fans of parallel and serial F commands
    */
