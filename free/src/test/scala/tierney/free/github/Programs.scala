@@ -2,6 +2,7 @@ package tierney.free.github
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import cats.~>
 import cats.instances.list._
 import cats.instances.set._
 import cats.syntax.apply._
@@ -9,6 +10,10 @@ import cats.syntax.flatMap._
 import cats.syntax.traverse._
 import scala.concurrent.duration._
 import tierney.free._
+import cats.Applicative
+import cats.Functor
+import tierney.parallel.ParallelApplicative
+import cats.Monad
 
 trait ApplicativePrograms {
   import GitHubDsl._
@@ -35,17 +40,17 @@ trait ApplicativePrograms {
         p.shallowAnalyze(requestedLogins)
       }
 
-  //  def precompute[A,F[_]:Applicative](
-  //    p: GitHubApplicative[A],
-  //    interp: GitHub ~> F
-  //  ): F[Map[UserLogin,User]] = {
-  //    val userLogins = extractLogins(p).toList
-  //
-  //    val fetched: F[List[User]] =
-  //      userLogins.traverseU(getUser).foldMap(interp)
-  //
-  //    Functor[F].map(fetched)(userLogins.zip(_).toMap)
-  //  }
+    def precompute[A,F[_]:ParallelApplicative: Monad](
+      p: Parallel[GitHub, A],
+      interp: GitHub ~> F
+    ): F[Map[UserLogin,User]] = {
+      val userLogins = extractLogins(p).toList
+  
+      val fetched: F[List[User]] =
+        userLogins.traverse(getUser).runParallel(interp)
+  
+      Monad[F].map(fetched)(userLogins.zip(_).toMap)
+    }
 
   //  def optimizeNat[F[_]:Applicative](
   //    mapping: Map[UserLogin,User],

@@ -25,10 +25,10 @@ class ParallelApplicativeTest {
     
     val timeSerial = timeOf(command.runSerialOrUnprincipled)
     assertTrue(timeSerial > 3000)
-    assertFalse(timeSerial > 3100)
+    assertFalse(timeSerial > 4000)
     
     val timeParallel = timeOf(command.runParallel)
     assertTrue(timeParallel > 1000)
-    assertFalse(timeParallel > 1100)
+    assertFalse(timeParallel > 2000)
   }
 }
