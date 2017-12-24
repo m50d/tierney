@@ -9,7 +9,7 @@ Combining Free Monads and Free Applicatives is a great way to get the advantages
 Tierney offers some simple wrappers to reduce the boilerplate of doing this with your own types,
 while also enforcing that code is always very explicit about which steps can and can't happen in parallel,
 freeing you to refactor with confidence that a simple change isn't going to accidentally serialise
-all of your operations. 
+all of your operations.
  
 ## How to use
 

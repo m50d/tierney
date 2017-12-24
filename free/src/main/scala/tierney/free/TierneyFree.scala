@@ -3,10 +3,6 @@ package tierney.free
 import cats.free.Free
 import cats.Applicative
 import tierney.core._
-import EitherKSupport._
-import FreeApplicativeSupport._
-import FreeSupport._
-import cats.data.EitherK
 import cats.~>
 import cats.arrow.FunctionK
 import cats.Monad

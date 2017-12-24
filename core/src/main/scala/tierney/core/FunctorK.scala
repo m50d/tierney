@@ -1,11 +1,9 @@
 package tierney.core
 
 import cats.~>
-import cats.Functor
 import cats.free.Free
 import cats.free.FreeApplicative
 import cats.data.EitherK
-import cats.arrow.FunctionK
 
 /**
  * Higher-kinded functor

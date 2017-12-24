@@ -5,9 +5,7 @@ import cats.free.FreeApplicative
 import cats.free.Free
 import tierney.core._
 import cats.~>
-import tierney.free.FreeSupport
-import cats.Applicative
-import cats.Monad
+import cats.kernel.Monoid
 
 package object free extends EitherKSupport with FreeSupport with FreeApplicativeSupport {
   /** Either an immediate command F or a recursive S structure
@@ -85,16 +83,15 @@ package object free extends EitherKSupport with FreeSupport with FreeApplicative
   object Parallel {
     def apply[F[_], A](command: F[A]): Parallel[F, A] = Node(command).parallel
   }
-//  implicit def applicativeParallel[F[_]]: Applicative[Parallel[F, ?]] = new Applicative[Parallel[F, ?]] {
-//    override def pure[A](a: A) = FreeApplicative.pure[Node[F, ?], A](a)
-//    override def ap[A, B](ff: Parallel[F, A => B])(fa: Parallel[F, A]) =
-//      fa.ap(ff)
-//  }
   implicit def functorKParallel: FunctorK[Parallel] = new FunctorK[Parallel] {
     override def map[F[_], G[_]](f: F ~> G) =
       compile_[Node[F, ?], Node[G, ?]](functorKNode.map(f))
   }
-  final implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A]
+  final implicit class ParallelOps[F[_], A](override val parallel: Parallel[F, A]) extends AnyVal with TierneyFree[F, A] {
+    def shallowAnalyze[M](f: F ~> Lambda[B => M])(implicit m: Monoid[M]) =
+      parallel.analyze(Lambda[Node[F, ?] ~> Lambda[B => M]](
+          _.unfix.fold[Lambda[A => M]](f, Lambda[Serial[F, ?] ~> Lambda[B => M]](_ => m.empty))))
+  }
   
   /** A chain of fans of parallel and serial F commands
    */

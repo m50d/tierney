@@ -3,6 +3,7 @@ package tierney.free.github
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import cats.instances.list._
+import cats.instances.set._
 import cats.syntax.apply._
 import cats.syntax.flatMap._
 import cats.syntax.traverse._
@@ -29,10 +30,10 @@ trait ApplicativePrograms {
         listIssues(Owner("scala"), Repo(repo))).
       map(_.flatten)
 
-  //    def extractLogins(p: GitHubApplicative[_]): Set[UserLogin] = {
-  //      import GitHubInterp._
-  //      p.analyze(requestedLogins)
-  //    }
+      def extractLogins(p: Parallel[GitHub, _]): Set[UserLogin] = {
+        import GitHubInterp._
+        p.shallowAnalyze(requestedLogins)
+      }
 
   //  def precompute[A,F[_]:Applicative](
   //    p: GitHubApplicative[A],
