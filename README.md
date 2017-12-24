@@ -40,10 +40,6 @@ TODO
  * The recursion is implemented using a fixed point combinator `FixKK` rather than directly
    * `Node` therefore actually has a slightly different type; the type above is called `UNode`
 
-### Features required for 1.0
-
- * Write examples in this document
- 
 ### Desirable features
 
  * Replace current basic performance test of `ParallelApplicative` with something more robust
