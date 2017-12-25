@@ -1,4 +1,4 @@
-# tierney
+# Tierney
 
 Generic library for structured commands with explicit parallelism
 
@@ -23,29 +23,87 @@ all of your operations.
 
 ### Direct use with `Future` or `Task`
 
-TODO
+Given a "deferred execution" type like FS2 `Task`, Tierney lets you write code that's more explicit
+about which things may happen in serial versus in parallel:
+
+    import tierney.free._, cats.syntax.all._
+    (for { 
+      w <- ( (for {
+          x <- Serial(someTask)
+          y <- Serial(anotherTask(x)) 
+        } yield y).parallel,
+          Parallel(yetAnotherTask) ).mapN {
+            (y, z) => someMerge(y, z)
+          } .serial
+      v <- ...
+    } yield {...}).runParallel
+
+`y` will be computed after `x`, but `z` will be computed in parallel with both; attempting to use
+`for`/`yield` on `Parallel`s is a compilation error, while using `Applicative` functionality
+like `mapN` on `Serial`s will serialize their evaluation.
+This means we leave some performance on the table compared to "opportunistic" approaches
+that offer both parallel `mapN` and serial `for`/`yield` on the same type,
+but we ensure that equivalent code (according to the monad/applicative laws) has equivalent parallelism,
+so "safe" refactors should never radically change performance characteristics (in either direction).
+The only way to change parallel code to serial (or vice versa) is to change `Serial(x)` to 
+`Parallel(x)` or add/remove an explicit `.serial` or `.parallel` call.
+Hopefully these strike the right balance between lightweight and explicit. 
 
 ### Use with custom command type and interpreter
 
-TODO
+Tierney can be used with `F[_]` being a custom command type - using `TierneyFree[F, A]`
+like you'd use `Free[F, A]`. In this case you simply pass an interpreter to the final
+`runParallel` call: 
+
+    sealed trait MyCommand[A]
+    case class ReadInt(path: String) extends MyCommand[Int]
+    case class WriteInt(path: String, value: Int) extends MyCommand[Unit]
+    ...
+    
+    val program = for {
+      i <- Serial(ReadInt("src"))
+      _ <- (Parallel(WriteInt("dst1", i)) *> Parallel(WriteInt("dst2", i + 4))).serial
+    } yield {}
+    
+    object MyInterpreter extends (MyCommand ~> Task) { ... }
+    
+    program.runParallel(MyInterpreter)
+
+See [this example code](https://github.com/m50d/tierney/tree/master/free/src/test/scala/tierney/free/github)
+for a more in-depth example that corresponds to [Markus Hauck's talk](https://github.com/markus1189/flatmap-oslo-2016).
+
+### Reference
+
+   * Conceptually there are three mutually recursive `TierneyFree`  subtypes:
+      * `Node[F, A] = Coproduct[F, Serial[F, ?], A]`
+         * `Left` `Node`s are where the recursive structure bottoms out in actual `F[_]`s
+         * The real type is slightly different since we do the recursion using
+         a fixed point combinator `FixKK` rather than directly
+         * The type above is called `UNode`
+      * `Parallel[F, A] = FreeApplicative[Node[F, ?], A]`
+         * Can be used with `mapN`-style composition
+      * `Serial[F, A] = Free[Parallel[F, ?], A`
+         * Can be used with `for`/`yield` composition
+   * Any `TierneyFree` can be converted to any of the three types using `.node`, `.serial` and `.parallel` 
+   * Interpretation functions are on `TierneyFree` itself
+      * `runParallel` requires both a `Monad` (for executing serial sections) and a `ParallelApplicative`,
+      a custom type that represents `Applicative`s that we know run operations in parallel. This is really
+      "run as parallel as possible" - serial commands can only ever be executed serially.
+      * `runSerialOrUnprincipled` executes both serial and parallel commands using the passed `Monad`.
+      Therefore every command will run serially, unless the `Monad` uses unprincipled "opportunistic"
+      parallelisation.
+      * `shallowAnalyze` will analyze "as far as possible" i.e. it will "hide" any chained
+      serial commands. E.g. if you're trying to prefetch users, this can only let you
+      prefetch those users whose IDs were passed in to start with, not e.g. friends
+      of those users, since it's not possible to find out their user IDs without
+      actually running the commands.
 
 ## Information for developers
 
-### Design
+### Desirable features
 
- * Conceptually there are three mutually recursive `TierneyFree` types:
-   * `Node[F, A] = Coproduct[F, Serial[F, ?], A`
-   * `Parallel[F, A] = FreeApplicative[Node[F, ?], A]`
-   * `Serial[F, A] = Free[Parallel[F, ?], A`
- * The recursion is implemented using a fixed point combinator `FixKK` rather than directly
-   * `Node` therefore actually has a slightly different type; the type above is called `UNode`
-
-### Features required for 1.0
-
- * Write examples in this document
- 
-### Other desirable features
-
+ * Add a deeper equivalent of `shallowAnalyze` to enable us to optimize code after `flatMap` chains
+ * Look at integrating with cats `Parallel` (perhaps renaming our `Parallel`) if it ever takes off.
  * Replace current basic performance test of `ParallelApplicative` with something more robust
  * Add more `ParallelApplicative` implementations e.g. scalaz-concurrent `Task`
  * Add performance tests for all `ParallelApplicative` implementations
