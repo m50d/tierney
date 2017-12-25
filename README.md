@@ -18,7 +18,7 @@ all of your operations.
     <dependency>
 		<groupId>com.github.m50d</groupId>
 		<artifactId>tierney-free</artifactId>
-		<version>0.3</version>
+		<version>1.0</version>
 	</dependency>
 
 ### Direct use with `Future` or `Task`

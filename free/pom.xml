@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.github.m50d</groupId>
 		<artifactId>tierney-aggregator</artifactId>
-		<version>0.4-SNAPSHOT</version>
+		<version>1.1-SNAPSHOT</version>
 	</parent>
 	<properties>
 		<play.version>2.6.0-M4</play.version>
