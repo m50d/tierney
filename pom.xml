@@ -167,14 +167,16 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>com.github.s4u.plugins</groupId>
+				<groupId>org.simplify4u.plugins</groupId>
 				<artifactId>pgpverify-maven-plugin</artifactId>
-				<version>1.0.0</version>
+				<version>1.2.0</version>
+				<configuration>
+					<failNoSignature>true</failNoSignature>
+					<failWeakSignature>true</failWeakSignature>
+					<keysMapLocation>${session.executionRootDirectory}/keysMap.txt</keysMapLocation>
+				</configuration>
 				<executions>
 					<execution>
-						<configuration>
-							<failNoSignature>true</failNoSignature>
-						</configuration>
 						<goals>
 							<goal>check</goal>
 						</goals>
@@ -204,15 +206,21 @@
 							<pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>com.github.s4u.plugins</groupId>
-										<artifactId>pgpverify-maven-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
+										<groupId>
+											org.simplify4u.plugins
+										</groupId>
+										<artifactId>
+											pgpverify-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.2.0,)
+										</versionRange>
 										<goals>
 											<goal>check</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore />
+										<ignore></ignore>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
