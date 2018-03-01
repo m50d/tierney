@@ -178,6 +178,7 @@
 						-unchecked
 						-Ypartial-unification
 					</zincCompileOptions>
+					<zincVerifyVersion>false</zincVerifyVersion>
 				</configuration>
 				<executions>
 					<execution>
