@@ -11,6 +11,7 @@
 		<scala.epoch>2.12</scala.epoch>
 		<scala.suffix>_${scala.epoch}</scala.suffix>
 		<cats.version>1.0.0-RC2</cats.version>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 	<profiles>
 		<profile>
@@ -65,6 +66,16 @@
 			<url>https://api.bintray.com/maven/lmm/maven/tierney/;publish=1</url>
 		</repository>
 	</distributionManagement>
+	<pluginRepositories>
+		<pluginRepository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>bintray-random-maven-maven</id>
+			<name>bintray-plugins</name>
+			<url>https://dl.bintray.com/random-maven/maven</url>
+		</pluginRepository>
+	</pluginRepositories>
 	<build>
 		<plugins>
 			<plugin>
@@ -78,7 +89,7 @@
 			<plugin>
 				<groupId>com.carrotgarden.maven</groupId>
 				<artifactId>scalor-maven-plugin_2.12</artifactId>
-				<version>1.3.2.20180223214239</version>
+				<version>1.4.0.20180302200115</version>
 				<configuration>
 					<defineBridge>
 						<dependency>
@@ -107,7 +118,7 @@
 							<version>0.9.4</version>
 						</dependency>
 					</definePluginList>
-					<zincCompileOptions>
+					<zincOptionsScala>
 						-deprecation
 						-feature
 						-language:higherKinds
@@ -122,8 +133,8 @@
 						-Ywarn-unused-import
 						-unchecked
 						-Ypartial-unification
-					</zincCompileOptions>
-					<zincVerifyVersion>false</zincVerifyVersion>
+                        -Dkp:genAsciiNames=true
+					</zincOptionsScala>
 				</configuration>
 				<executions>
 					<execution>
