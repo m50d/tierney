@@ -88,8 +88,8 @@
 			</plugin>
 			<plugin>
 				<groupId>com.carrotgarden.maven</groupId>
-				<artifactId>scalor-maven-plugin_2.12</artifactId>
-				<version>1.4.0.20180302200115</version>
+				<artifactId>scalor-maven-plugin${scala.suffix}</artifactId>
+				<version>1.4.0.20180306184848</version>
 				<configuration>
 					<defineBridge>
 						<dependency>
@@ -138,6 +138,7 @@
 				</configuration>
 				<executions>
 					<execution>
+						<id>main</id>
 						<goals>
 							<goal>eclipse-config</goal>
 							<goal>eclipse-format</goal>
@@ -147,7 +148,7 @@
 							<goal>register-test</goal>
 							<goal>compile-main</goal>
 							<goal>compile-test</goal>
-							<!-- <goal>scaladoc</goal> -->
+							<goal>scaladoc</goal>
 							<!-- <goal>scala-js-link-main</goal> -->
 							<!-- <goal>scala-js-link-test</goal> -->
 							<!-- <goal>scala-js-env-prov-webjars</goal> -->
