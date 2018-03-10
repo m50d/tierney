@@ -8,7 +8,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scala.version>2.12.4</scala.version>
 		<scala.suffix>_2.12</scala.suffix>
-		<cats.version>1.0.0-RC2</cats.version>
+		<cats.version>1.0.1</cats.version>
 	</properties>
 	<profiles>
 		<profile>
