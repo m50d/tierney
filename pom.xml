@@ -133,7 +133,7 @@
 						-Ywarn-unused-import
 						-unchecked
 						-Ypartial-unification
-                        -Dkp:genAsciiNames=true
+						-Dkp:genAsciiNames=true
 					</zincOptionsScala>
 				</configuration>
 				<executions>
@@ -148,12 +148,17 @@
 							<goal>register-test</goal>
 							<goal>compile-main</goal>
 							<goal>compile-test</goal>
-							<goal>scaladoc</goal>
 							<!-- <goal>scala-js-link-main</goal> -->
 							<!-- <goal>scala-js-link-test</goal> -->
 							<!-- <goal>scala-js-env-prov-webjars</goal> -->
 							<!-- <goal>scala-js-env-prov-nodejs</goal> -->
 							<!-- <goal>scala-js-env-conf-nodejs</goal> -->
+						</goals>
+					</execution>
+					<execution>
+						<id>scaladoc</id>
+						<goals>
+							<goal>scaladoc</goal>
 						</goals>
 					</execution>
 				</executions>
