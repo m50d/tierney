@@ -89,7 +89,7 @@
 			<plugin>
 				<groupId>com.carrotgarden.maven</groupId>
 				<artifactId>scalor-maven-plugin${scala.suffix}</artifactId>
-				<version>1.4.1.20180402152034</version>
+				<version>1.4.1.20180403190043</version>
 				<configuration>
 <!-- 					<defineBridge> -->
 <!-- 						<dependency> -->
