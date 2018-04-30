@@ -15,7 +15,7 @@
                 <artifactId>scalor-maven-plugin${scala.suffix}</artifactId>
                 <configuration>
                     <!-- Scaladoc interacts poorly with kind-projector -->
-                    <scaladocRegexScalaExclude>.+(EitherKSupport|FunctionKK|FunctorKK|FunctorK|LazyFunctionKK|FixKTest|package)[.]scala</scaladocRegexScalaExclude>
+                    <scaladocRegexScalaExclude>.+(EitherKSupport|FunctionKK|FunctorKK|FunctorK|LazyFunctionKK|FixKTest|package)\.scala</scaladocRegexScalaExclude>
                 </configuration>
             </plugin>
         </plugins>
