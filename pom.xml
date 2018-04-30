@@ -133,11 +133,11 @@
                             <goal>compile-test</goal>
                             <goal>scaladoc-main</goal>
                             <goal>scaladoc-test</goal>
-							<!-- <goal>scala-js-link-main</goal> -->
-							<!-- <goal>scala-js-link-test</goal> -->
-							<!-- <goal>scala-js-env-prov-webjars</goal> -->
-							<!-- <goal>scala-js-env-prov-nodejs</goal> -->
-							<!-- <goal>scala-js-env-conf-nodejs</goal> -->
+							<goal>scala-js-link-main</goal>
+							<goal>scala-js-link-test</goal>
+							<goal>scala-js-env-prov-webjars</goal>
+							<goal>scala-js-env-prov-nodejs</goal>
+							<goal>scala-js-env-conf-nodejs</goal>
 						</goals>
 					</execution>
 				</executions>
