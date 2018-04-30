@@ -2,13 +2,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.m50d</groupId>
 	<artifactId>tierney-aggregator</artifactId>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scala.version>2.12.4</scala.version>
-		<scala.suffix>_2.12</scala.suffix>
+		<scala.epoch>2.12</scala.epoch>
+		<scala.suffix>_${scala.epoch}</scala.suffix>
 		<cats.version>1.0.1</cats.version>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 	<profiles>
 		<profile>
@@ -66,83 +68,65 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>net.alchim31.maven</groupId>
-				<artifactId>scala-maven-plugin</artifactId>
-				<version>3.3.1</version>
-				<executions>
-					<execution>
-						<id>attach-source</id>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>compile</id>
-						<goals>
-							<goal>compile</goal>
-						</goals>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
 						<configuration>
-							<addScalacArgs>-P:wartremover:all|-Xfatal-warnings</addScalacArgs>
+					<skip>true</skip>
+					<skipMain>true</skipMain>
 						</configuration>
-					</execution>
-					<execution>
-						<id>test-compile</id>
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>doc-jar</goal>
-						</goals>
-					</execution>
-				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.carrotgarden.maven</groupId>
+				<artifactId>scalor-maven-plugin${scala.suffix}</artifactId>
+				<version>1.4.1.20180403213227</version>
 				<configuration>
-					<args>
-						<arg>-deprecation</arg>
-						<arg>-feature</arg>
-						<arg>-language:higherKinds</arg>
-						<arg>-language:existentials</arg>
-						<arg>-language:postfixOps</arg>
-						<arg>-Xlint</arg>
-						<arg>-Yno-adapted-args</arg>
-						<arg>-Ywarn-dead-code</arg>
-						<arg>-Ywarn-numeric-widen</arg>
-						<arg>-Ywarn-value-discard</arg>
-						<arg>-Xfuture</arg>
-						<arg>-Ywarn-unused-import</arg>
-						<arg>-unchecked</arg>
-						<arg>-Ypartial-unification</arg>
-					</args>
-					<jvmArgs>
-						<jvmArg>-Dkp:genAsciiNames=true</jvmArg>
-					</jvmArgs>
-					<scalaCompatVersion>2.12.-1</scalaCompatVersion>
-					<failOnMultipleScalaVersions>true</failOnMultipleScalaVersions>
-					<compilerPlugins>
-						<compilerPlugin>
+					<definePluginList>
+						<dependency>
 							<groupId>org.wartremover</groupId>
 							<artifactId>wartremover${scala.suffix}</artifactId>
 							<version>1.2.1</version>
-						</compilerPlugin>
-						<compilerPlugin>
+						</dependency>
+						<dependency>
 							<groupId>org.spire-math</groupId>
 							<artifactId>kind-projector${scala.suffix}</artifactId>
-							<version>0.9.3</version>
-						</compilerPlugin>
-					</compilerPlugins>
+							<version>0.9.4</version>
+						</dependency>
+					</definePluginList>
+					<zincOptionsScala>
+						-deprecation
+						-feature
+						-language:higherKinds
+						-language:existentials
+						-language:postfixOps
+						-Xlint
+						-Yno-adapted-args
+						-Ywarn-dead-code
+						-Ywarn-numeric-widen
+						-Ywarn-value-discard
+						-Xfuture
+						-Ywarn-unused-import
+						-unchecked
+						-Ypartial-unification
+						-Dkp:genAsciiNames=true
+					</zincOptionsScala>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
 				<executions>
 					<execution>
-						<id>attach-sources</id>
 						<goals>
-							<goal>jar-no-fork</goal>
+							<goal>eclipse-config</goal>
+							<goal>eclipse-prescomp</goal>
+							<goal>register-main</goal>
+							<goal>register-test</goal>
+							<goal>compile-main</goal>
+							<goal>compile-test</goal>
+							<goal>scaladoc-main</goal>
+							<goal>scaladoc-test</goal>
+							<goal>scala-js-link-main</goal>
+							<goal>scala-js-link-test</goal>
+							<goal>scala-js-env-prov-webjars</goal>
+							<goal>scala-js-env-prov-nodejs</goal>
+							<goal>scala-js-env-conf-nodejs</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -188,6 +172,19 @@
 					<aggregate>true</aggregate>
 					<scalaVersion>${scala.version}</scalaVersion>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -280,7 +277,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.typelevel</groupId>
-				<artifactId>machinist_2.12</artifactId>
+				<artifactId>machinist${scala.suffix}</artifactId>
 				<version>0.6.2</version>
 			</dependency>
 		</dependencies>
