@@ -2,14 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.m50d</groupId>
 	<artifactId>tierney-aggregator</artifactId>
-	<version>1.4-SNAPSHOT</version>
+	<version>1.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scala.version>2.12.4</scala.version>
 		<scala.epoch>2.12</scala.epoch>
 		<scala.suffix>_${scala.epoch}</scala.suffix>
-		<cats.version>1.0.0-RC2</cats.version>
+		<cats.version>1.0.1</cats.version>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 	<profiles>
@@ -71,10 +71,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.7.0</version>
-				<configuration>
+						<configuration>
 					<skip>true</skip>
 					<skipMain>true</skipMain>
-				</configuration>
+						</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.carrotgarden.maven</groupId>
