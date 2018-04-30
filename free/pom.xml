@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.github.m50d</groupId>
 		<artifactId>tierney-aggregator</artifactId>
-		<version>1.1-SNAPSHOT</version>
+		<version>1.4-SNAPSHOT</version>
 	</parent>
 	<properties>
 		<play.version>2.6.0-M4</play.version>
@@ -14,22 +14,12 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>net.alchim31.maven</groupId>
-				<artifactId>scala-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<configuration>
-							<!-- Scaladoc interacts poorly with kind-projector -->
-							<excludes>
-								<exclude>tierney/free/package.scala</exclude>
-								<exclude>tierney/free/FreeApplicativeSupport.scala</exclude>
-								<exclude>tierney/free/FreeSupport.scala</exclude>
-								<exclude>tierney/free/TierneyFree.scala</exclude>
-							</excludes>
-						</configuration>
-					</execution>
-				</executions>
+				<groupId>com.carrotgarden.maven</groupId>
+				<artifactId>scalor-maven-plugin${scala.suffix}</artifactId>
+				<configuration>
+					<!-- Scaladoc interacts poorly with kind-projector -->
+					<scaladocRegexScalaExclude>(.*[/\\])*(FreeApplicativeSupport|FreeSupport|TierneyFree|TierneyFreeTest|Programs|Github|ParallelApplicativeTest|package)\.scala</scaladocRegexScalaExclude>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
