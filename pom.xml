@@ -67,16 +67,6 @@
 			<url>https://api.bintray.com/maven/lmm/maven/tierney/;publish=1</url>
 		</repository>
 	</distributionManagement>
-	<pluginRepositories>
-		<pluginRepository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>bintray-random-maven-maven</id>
-			<name>bintray-plugins</name>
-			<url>https://dl.bintray.com/random-maven/maven</url>
-		</pluginRepository>
-	</pluginRepositories>
 	<build>
 		<plugins>
 			<plugin>
