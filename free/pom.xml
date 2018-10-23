@@ -6,8 +6,8 @@
 		<version>1.5-SNAPSHOT</version>
 	</parent>
 	<properties>
-		<play.version>2.6.0-M4</play.version>
-		<jackson.version>2.8.8</jackson.version>
+		<play.version>2.6.10</play.version>
+		<jackson.version>2.8.11</jackson.version>
 	</properties>
 	<artifactId>tierney-free</artifactId>
 	<packaging>jar</packaging>
