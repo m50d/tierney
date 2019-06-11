@@ -19,3 +19,6 @@ test-tool/
 .classpath
 .project
 .settings
+
+# IntelliJ specific
+.idea
