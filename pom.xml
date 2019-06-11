@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.m50d</groupId>
 	<artifactId>tierney-aggregator</artifactId>
-	<version>1.5-SNAPSHOT</version>
+	<version>1.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -79,7 +79,7 @@
 			<plugin>
 				<groupId>com.carrotgarden.maven</groupId>
 				<artifactId>scalor-maven-plugin${scala.suffix}</artifactId>
-				<version>1.4.1.20180403213227</version>
+				<version>1.5.0.20190502185130</version>
 				<configuration>
 					<definePluginList>
 						<dependency>
