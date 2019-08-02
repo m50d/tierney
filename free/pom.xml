@@ -7,7 +7,7 @@
 	</parent>
 	<properties>
 		<akka.version>2.5.8</akka.version>
-		<jackson.version>2.9.9.2</jackson.version>
+		<jackson.version>2.9.9</jackson.version>
 		<play.version>2.6.10</play.version>
 	</properties>
 	<artifactId>tierney-free</artifactId>
@@ -89,7 +89,8 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>${jackson.version}</version>
+				<!-- jackson-databind only security fix -->
+				<version>${jackson.version}.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.scala-lang.modules</groupId>
