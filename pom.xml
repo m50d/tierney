@@ -150,13 +150,16 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>com.github.s4u.plugins</groupId>
+				<groupId>org.simplify4u.plugins</groupId>
 				<artifactId>pgpverify-maven-plugin</artifactId>
-				<version>1.0.0</version>
+				<version>1.6.0</version>
 				<executions>
 					<execution>
 						<configuration>
-							<failNoSignature>true</failNoSignature>
+							<keysMapLocation>${project.basedir}/keys.properties</keysMapLocation>
+							<strictNoSignature>true</strictNoSignature>
+							<verifyPlugins>true</verifyPlugins>
+							<verifyProvidedDependencies>true</verifyProvidedDependencies>
 						</configuration>
 						<goals>
 							<goal>check</goal>
