@@ -156,8 +156,10 @@
 				<executions>
 					<execution>
 						<configuration>
-							<failNoSignature>true</failNoSignature>
-							<scope>compile</scope>
+							<keysMapLocation>${project.basedir}/keys.properties</keysMapLocation>
+							<strictNoSignature>true</strictNoSignature>
+							<verifyPlugins>true</verifyPlugins>
+							<verifyProvidedDependencies>true</verifyProvidedDependencies>
 						</configuration>
 						<goals>
 							<goal>check</goal>
