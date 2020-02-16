@@ -150,13 +150,14 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>com.github.s4u.plugins</groupId>
+				<groupId>org.simplify4u.plugins</groupId>
 				<artifactId>pgpverify-maven-plugin</artifactId>
-				<version>1.0.0</version>
+				<version>1.6.0</version>
 				<executions>
 					<execution>
 						<configuration>
 							<failNoSignature>true</failNoSignature>
+							<scope>compile</scope>
 						</configuration>
 						<goals>
 							<goal>check</goal>
