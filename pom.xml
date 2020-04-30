@@ -123,9 +123,8 @@
 							<goal>register-test</goal>
 							<goal>compile-main</goal>
 							<goal>compile-test</goal>
-							<!-- Not working on up-to-date JVM -->
-							<!-- <goal>scaladoc-main</goal> -->
-							<!-- <goal>scaladoc-test</goal> -->
+							<goal>scaladoc-main</goal>
+							<goal>scaladoc-test</goal>
 							<goal>scala-js-link-main</goal>
 							<goal>scala-js-link-test</goal>
 							<goal>scala-js-env-prov-webjars</goal>
