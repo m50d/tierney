@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.m50d</groupId>
 	<artifactId>tierney-aggregator</artifactId>
@@ -6,7 +8,7 @@
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<scala.version>2.12.4</scala.version>
+		<scala.version>2.12.11</scala.version>
 		<scala.epoch>2.12</scala.epoch>
 		<scala.suffix>_${scala.epoch}</scala.suffix>
 		<cats.version>1.0.1</cats.version>
@@ -71,10 +73,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.7.0</version>
-						<configuration>
+				<configuration>
 					<skip>true</skip>
 					<skipMain>true</skipMain>
-						</configuration>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.carrotgarden.maven</groupId>
@@ -93,6 +95,7 @@
 							<version>0.9.4</version>
 						</dependency>
 					</definePluginList>
+					<eclipseMavenPluginVersionRange>[1.8.0,1.14.0)</eclipseMavenPluginVersionRange>
 					<zincOptionsScala>
 						-deprecation
 						-feature
@@ -120,8 +123,9 @@
 							<goal>register-test</goal>
 							<goal>compile-main</goal>
 							<goal>compile-test</goal>
-							<goal>scaladoc-main</goal>
-							<goal>scaladoc-test</goal>
+							<!-- Not working on up-to-date JVM -->
+							<!-- <goal>scaladoc-main</goal> -->
+							<!-- <goal>scaladoc-test</goal> -->
 							<goal>scala-js-link-main</goal>
 							<goal>scala-js-link-test</goal>
 							<goal>scala-js-env-prov-webjars</goal>
@@ -212,6 +216,25 @@
 									</pluginExecutionFilter>
 									<action>
 										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.simplify4u.plugins
+										</groupId>
+										<artifactId>
+											pgpverify-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.6.0,)
+										</versionRange>
+										<goals>
+											<goal>check</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
